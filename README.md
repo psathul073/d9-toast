@@ -80,10 +80,8 @@ export default App;
 
 | Prop               | Type    | Default     | Description                                                                     |
 | ------------------ | ------- | ----------- | ------------------------------------------------------------------------------- |
-| `position`         | string  | `top-right` | Position of all toasts (`top-left`, `top-right`, `bottom-left`, `bottom-right`) |
-| `theme`            | string  | `light`     | Default theme for all toasts (`light` or `dark`)                                |
-| `pauseOnHover`     | boolean | `true`      | Pause toast timer on hover                                                      |
-| `pauseOnFocusLoss` | boolean | `true`      | Pause toast timer when window loses focus                                       |
+| `position`         | string  | `top-right` | Position of all toasts (`top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`, `center-top`, `center-bottom` ) |
+
 
 ### 4. Toast Options
 
@@ -92,6 +90,9 @@ export default App;
 | `message`  | string  | -       | The message to display                                                     |
 | `type`     | string  | `info`  | Type of toast (`success`, `error`, `info`, `warning`, `loading`, `submit`) |
 | `duration` | number  | 5000    | Auto-close duration in ms (0 for infinite)                                 |
+| `theme`            | string  | `light`     | Default theme for all toasts (`light` or `dark`)                                |
+| `pauseOnHover`     | boolean | `true`      | Pause toast timer on hover                                                      |
+| `pauseOnFocusLoss` | boolean | `true`      | Pause toast timer when window loses focus                                       |
 | `actions`  | array   | []      | Array of action objects `{ text: string, callback: function }`             |
 | `closable` | boolean | true    | Show close button                                                          |
 | `progress` | boolean | true    | Show progress bar                                                          |
