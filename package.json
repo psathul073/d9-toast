@@ -1,0 +1,36 @@
+{
+  "name": "d9-toast",
+  "version": "1.0.15",
+  "description": "Customizable toast notifications for React",
+  "main": "dist/index.js",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "./dist/toast.css"
+  ],
+  "types": "dist/d9-toast.d.ts",
+  "scripts": {
+    "build:js": "npx babel src --out-dir dist --copy-files",
+    "build": "npm run build:js"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "keywords": [
+    "react",
+    "toast",
+    "notifications",
+    "ui"
+  ],
+  "license": "MIT",
+  "author": "Athul PS",
+  "devDependencies": {
+    "@babel/cli": "^7.28.3",
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1"
+  }
+}

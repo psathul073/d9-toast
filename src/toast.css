@@ -1,0 +1,202 @@
+.toastContainer {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  gap: 12px;
+}
+.toastContainer.top-right {
+  flex-direction: column;
+  top: 16px;
+  right: 16px;
+}
+.toastContainer.top-left {
+  flex-direction: column;
+  top: 16px;
+  left: 16px;
+}
+.toastContainer.bottom-right {
+  flex-direction: column-reverse;
+  bottom: 16px;
+  right: 16px;
+}
+.toastContainer.bottom-left {
+  flex-direction: column-reverse;
+  bottom: 16px;
+  left: 16px;
+}
+.toastContainer.center {
+  flex-direction: column;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.toastContainer.center-top {
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.toastContainer.center-bottom {
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast {
+  position: relative;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: system-ui, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+.toast.light {
+  background-color: #f9fafb;
+  color: #030712;
+}
+
+.toast.dark {
+  background-color: #030712;
+  color: #f9fafb;
+}
+
+.toastHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: 6px;
+  box-shadow: inset 0 1px rgb(0 0 0 / 0.05);
+}
+.toastHeader span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.toastHeader button:hover {
+  cursor: pointer;
+  color: oklch(57.7% 0.245 27.325);
+}
+
+.toastHeader.success {
+  color: oklch(62.7% 0.194 149.214);
+  background-color: oklch(63.187% 0.18673 147.227 / 0.2);
+}
+.toastHeader.error {
+  color: oklch(57.7% 0.245 27.325);
+  background-color: oklch(58.305% 0.23863 28.392 / 0.2);
+}
+.toastHeader.info {
+  color: oklch(54.6% 0.245 262.881);
+  background-color: oklch(54.6% 0.245 262.881 / 0.1);
+}
+.toastHeader.warning {
+  color: oklch(68.1% 0.162 75.834);
+  background-color: oklch(68.1% 0.162 75.834 / 0.1);
+}
+.toastHeader.loading,
+.toastHeader.submit {
+  color: oklch(48.847% 0.03665 257.306);
+  background-color: oklch(44.6% 0.03 256.802 / 0.2);
+}
+.toastActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-right: 5px;
+  margin-bottom: 8px;
+}
+.toastActions button {
+  padding: 4px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+}
+.progress-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.25rem;
+  border-radius: 0 0 0.25rem 0.25rem;
+  background-color: rgba(220, 220, 220, 0.715);
+  overflow: hidden;
+}
+
+.progress-container.success {
+  background-color: oklch(62.7% 0.194 149.214 / 0.25);
+}
+.progress-container.error {
+  background-color: oklch(57.7% 0.245 27.325 / 0.25);
+}
+.progress-container.info {
+  background-color: oklch(54.6% 0.245 262.881 / 0.25);
+}
+.progress-container.warning {
+  background-color: oklch(68.1% 0.162 75.834 / 0.25);
+}
+.progress-container.loading,
+.progress-container.submit {
+  background-color: oklch(48.847% 0.03665 257.306 / 0.25);
+}
+
+.toast-progress {
+  height: 0.25rem;
+  transition: width 0.1s linear;
+}
+
+.toast-progress.success {
+  background-color: oklch(62.7% 0.194 149.214);
+}
+.toast-progress.error {
+  background-color: oklch(57.7% 0.245 27.325);
+}
+.toast-progress.info {
+  background-color: oklch(54.6% 0.245 262.881);
+}
+.toast-progress.warning {
+  background-color: oklch(68.1% 0.162 75.834);
+}
+.toast-progress.loading,
+.toast-progress.submit {
+  background-color: oklch(48.847% 0.03665 257.306);
+}
+
+@keyframes downToUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes upToDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media screen and (max-width: 325px) {
+  .toastContainer.top-right,
+  .toastContainer.bottom-right {
+    right: 0px;
+  }
+  .toastContainer.top-left,
+  .toastContainer.bottom-left {
+    left: 0px;
+  }
+}
