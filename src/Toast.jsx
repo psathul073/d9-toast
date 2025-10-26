@@ -89,7 +89,7 @@ const Toast = ({
     (position.startsWith("bottom") && "downToUp") ||
     (position.endsWith("top") && "upToDown") ||
     (position.endsWith("bottom") && "downToUp")
-  } 0.3s ease-in`;
+  } 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
 
   return (
     <>
@@ -101,9 +101,9 @@ const Toast = ({
       >
         {/* Header */}
         <div className={`toastHeader ${type}`}>
-          <span>
-            <Icons name={type} /> {type.toUpperCase()}
-          </span>
+          <div className="title">
+            <Icons name={type} /> <p>{type.toUpperCase()}</p>
+          </div>
 
           {closable && (
             <button onClick={remove}>
@@ -118,19 +118,25 @@ const Toast = ({
         {/* Actions */}
         {actions.length > 0 && (
           <div className="toastActions">
-            {actions.map((a, idx) => (
-              <button
-                key={idx}
-                onClick={() => a.callback?.({ id })}
-                style={{
-                  borderColor: `${
-                    theme === "dark" ? "#f9fafb33" : "#161d2333"
-                  }`,
-                }}
-              >
-                {a.text}
-              </button>
-            ))}
+            {actions.map((a, idx) => {
+              if (idx < 2) {
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => a.callback?.({ id })}
+                    className={`action-btn ${
+                      actions.length === 1
+                        ? `action-btnA ${type}`
+                        : idx === 0
+                        ? `action-btnB ${type}`
+                        : `action-btnA ${type}`
+                    }`}
+                  >
+                    {a.text}
+                  </button>
+                );
+              }
+            })}
           </div>
         )}
 

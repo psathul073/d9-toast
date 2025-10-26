@@ -1,8 +1,20 @@
+/* Defaults */
+button,
+p,
+span {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
 .toastContainer {
   position: fixed;
   z-index: 999;
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 .toastContainer.top-right {
   flex-direction: column;
@@ -48,19 +60,20 @@
   flex-direction: column;
   gap: 8px;
   padding: 6px;
+  margin: 6px 0;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: system-ui, sans-serif;
-  transition: all 0.3s ease-in-out;
+  font-family: cursive;
+  transition: all 0.3s ease-in;
 }
-.toast.light {
+.light {
   background-color: #f9fafb;
-  color: #030712;
+  color: #111827;
 }
 
-.toast.dark {
+.dark {
   background-color: #030712;
-  color: #f9fafb;
+  color: #f3f4f6;
 }
 
 .toastHeader {
@@ -71,15 +84,23 @@
   border-radius: 6px;
   box-shadow: inset 0 1px rgb(0 0 0 / 0.05);
 }
-.toastHeader span {
-  display: flex;
+.toastHeader .title {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 1rem;
   font-weight: 500;
 }
-.toastHeader button:hover {
+
+.toastHeader button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3em;
   cursor: pointer;
+}
+
+.toastHeader button:hover {
   color: oklch(57.7% 0.245 27.325);
 }
 
@@ -93,16 +114,16 @@
 }
 .toastHeader.info {
   color: oklch(54.6% 0.245 262.881);
-  background-color: oklch(54.6% 0.245 262.881 / 0.1);
+  background-color: oklch(54.6% 0.245 262.881 / 0.2);
 }
 .toastHeader.warning {
   color: oklch(68.1% 0.162 75.834);
-  background-color: oklch(68.1% 0.162 75.834 / 0.1);
+  background-color: oklch(68.1% 0.162 75.834 / 0.2);
 }
 .toastHeader.loading,
 .toastHeader.submit {
-  color: oklch(48.847% 0.03665 257.306);
-  background-color: oklch(44.6% 0.03 256.802 / 0.2);
+  color: oklab(54.13400000000001% 0.09644 -0.22706);
+  background-color: oklab(54.13400000000001% 0.09644 -0.22706 / 0.2);
 }
 .toastActions {
   display: flex;
@@ -111,13 +132,68 @@
   margin-right: 5px;
   margin-bottom: 8px;
 }
-.toastActions button {
+.toastActions .action-btn {
   padding: 4px 12px;
   font-size: 14px;
   border-radius: 6px;
   border: 1px solid;
   cursor: pointer;
 }
+.toastActions .action-btn:hover {
+  opacity: 0.8;
+}
+
+/* Action button 1 */
+.action-btnA.success {
+  color: oklab(98.193% -0.01648 0.00729);
+  border-color: oklch(63.187% 0.18673 147.227);
+  background-color: oklch(63.187% 0.18673 147.227);
+}
+.action-btnA.error {
+  color: oklab(93.56400000000001% 0.02943 0.0093);
+  border-color: oklch(58.305% 0.23863 28.392);
+  background-color: oklch(58.305% 0.23863 28.392);
+}
+.action-btnA.info {
+  color: oklab(93.192% -0.00786 -0.03071);
+  border-color: oklch(54.742% 0.24331 262.725);
+  background-color: oklch(54.742% 0.24331 262.725);
+}
+.action-btnA.warning {
+  color: oklab(97.962% 0.00443 0.01503);
+  border-color: oklch(68.215% 0.14645 71.468);
+  background-color: oklch(68.215% 0.14645 71.468);
+}
+.action-btnA.loading,
+.action-btnA.submit {
+  color: oklab(94.33500000000001% 0.01183 -0.02594);
+  border-color: oklab(54.13400000000001% 0.09644 -0.22706);
+  background-color: oklab(54.13400000000001% 0.09644 -0.22706);
+}
+/* Action button 2 */
+.action-btnB.success {
+  color: oklch(63.187% 0.18673 147.227);
+  border-color: oklch(63.187% 0.18673 147.227);
+}
+
+.action-btnB.error {
+  color: oklch(58.305% 0.23863 28.392);
+  border-color: oklch(58.305% 0.23863 28.392);
+}
+.action-btnB.info {
+  color: oklch(54.742% 0.24331 262.725);
+  border-color: oklch(54.742% 0.24331 262.725);
+}
+.action-btnB.warning {
+  color: oklch(68.215% 0.14645 71.468);
+  border-color: oklch(68.215% 0.14645 71.468);
+}
+.action-btnB.loading,
+.action-btnB.submit {
+  color: oklab(54.13400000000001% 0.09644 -0.22706);
+  border-color: oklab(54.13400000000001% 0.09644 -0.22706);
+}
+
 .progress-container {
   position: absolute;
   bottom: 0;
@@ -143,7 +219,7 @@
 }
 .progress-container.loading,
 .progress-container.submit {
-  background-color: oklch(48.847% 0.03665 257.306 / 0.25);
+  background-color: oklab(54.13400000000001% 0.09644 -0.22706 / 0.25);
 }
 
 .toast-progress {
@@ -165,7 +241,7 @@
 }
 .toast-progress.loading,
 .toast-progress.submit {
-  background-color: oklch(48.847% 0.03665 257.306);
+  background-color: oklab(54.13400000000001% 0.09644 -0.22706);
 }
 
 @keyframes downToUp {
@@ -190,7 +266,7 @@
   }
 }
 
-@media screen and (max-width: 325px) {
+@media screen and (max-width: 375px) {
   .toastContainer.top-right,
   .toastContainer.bottom-right {
     right: 0px;

@@ -12,6 +12,16 @@ export const ToastProvider = ({ children, position = "top-right" }) => {
   // Generate unique ID safely
   const generateId = () => Date.now() + Math.random();
 
+  // Positions.
+  const positions = [
+    "top-left",
+    "top-right",
+    "bottom-left",
+    "bottom-right",
+    "center",
+    "center-top",
+    "center-bottom",
+  ];
 
   // Show toast
   const showToast = useCallback((toast) => {
@@ -32,7 +42,11 @@ export const ToastProvider = ({ children, position = "top-right" }) => {
     <ToastContext.Provider value={{ showToast, removeToast }}>
       {children}
 
-      <div className={`toastContainer ${position}`}>
+      <div
+        className={`toastContainer ${
+          positions.some((p) => p === position) ? position : "top-right"
+        }`}
+      >
         {toasts.map((toast) => (
           <Toast
             key={toast.id}

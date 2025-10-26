@@ -56,21 +56,23 @@ import React from "react";
 import { useToast } from "d9-toast";
 
 function App() {
-  const toast = useToast();
 
-  const showToast = () => {
-    toast({
+  const { showToast, removeToast } = useToast();
+
+  const Toast = () => {
+    showToast({
       message: "Hello World!",
       type: "success", // success | error | info | warning | loading | submit
       duration: 3000,
       actions: [
+        { text: "Save", callback: () => console.log("Save clicked") },
         { text: "Undo", callback: () => console.log("Undo clicked") },
-      ],
+      ], 
       className: "bg-green-500 text-white shadow-lg", // optional Tailwind/custom styling
     });
   };
 
-  return <button onClick={showToast}>Show Toast</button>;
+  return <button onClick={Toast}>Show Toast</button>;
 }
 
 export default App;
