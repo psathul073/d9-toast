@@ -1,6 +1,7 @@
 declare module "d9-toast" {
   import React from "react";
 
+  /** Toast type (icon + header color) */
   export type ToastType =
     | "success"
     | "error"
@@ -9,40 +10,74 @@ declare module "d9-toast" {
     | "loading"
     | "submit";
 
+  /** Theme variants */
+  export type ToastTheme = "light" | "dark";
+
+  /** Available toast positions */
+  export type ToastPosition =
+    | "top-right"
+    | "top-left"
+    | "bottom-right"
+    | "bottom-left"
+    | "center"
+    | "center-top"
+    | "center-bottom";
+
+  /** Single button/action displayed inside a toast */
   export interface ToastAction {
+    /** Text label for the action button */
     text: string;
+    /** Optional callback triggered on click */
     callback?: (toast: { id: number }) => void;
   }
 
+  /** Toast configuration options */
   export interface ToastOptions {
+    /** Main message text of the toast */
     message: string;
+    /** Visual type (color/icon) */
     type?: ToastType;
+    /** Duration in ms before auto-close (0 = persistent) */
     duration?: number;
+    /** Optional buttons shown inside the toast */
     actions?: ToastAction[];
-    theme?: "light" | "dark";
+    /** Visual theme */
+    theme?: ToastTheme;
+    /** Whether to show progress bar */
     progress?: boolean;
+    /** Allow manual close via X button */
     closable?: boolean;
+    /** Pause timer when hovered */
     pauseOnHover?: boolean;
+    /** Pause timer when window/tab loses focus */
     pauseOnFocusLoss?: boolean;
-    className?: string; 
+    /** Extra custom class names */
+    className?: string;
+    /** Where to place the toast on screen */
+    position?: ToastPosition;
+    /** Whether the toast auto-closes after duration */
+    autoClose?: boolean;
   }
 
+  /** Toast provider props for context setup */
   export interface ToastProviderProps {
+    /** App children to wrap with ToastProvider */
     children: React.ReactNode;
-    position?:
-      | "top-right"
-      | "top-left"
-      | "bottom-right"
-      | "bottom-left"
-      | "center"
-      | "center-top"
-      | "center-bottom";
   }
 
+  /** Context value shape */
+  export interface ToastContextValue {
+    /** Show a toast with given options */
+    showToast: (toast: ToastOptions) => void;
+    /** Remove a toast by ID */
+    removeToast: (id: number) => void;
+    /** Remove all active toasts */
+    removeToastAll: () => void;
+  }
+
+  /** Context provider component */
   export const ToastProvider: React.FC<ToastProviderProps>;
 
-  export const useToast: () => {
-    showToast: (toast: ToastOptions) => void;
-    removeToast: (id: number) => void;
-  };
+  /** Hook to trigger and manage toasts */
+  export const useToast: () => ToastContextValue;
 }

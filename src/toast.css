@@ -43,11 +43,13 @@ span {
   transform: translate(-50%, -50%);
 }
 .toastContainer.center-top {
+  flex-direction: column;
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
 }
 .toastContainer.center-bottom {
+  flex-direction: column-reverse;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
@@ -244,25 +246,71 @@ span {
   background-color: oklab(54.13400000000001% 0.09644 -0.22706);
 }
 
-@keyframes downToUp {
+/* Enter animate keyframes */
+@keyframes upToDown {
   from {
-    transform: translateY(100%);
     opacity: 0;
+    transform: translateY(-60px) scale(0.6);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes upToDown {
+@keyframes downToUp {
   from {
-    transform: translateY(-100%);
     opacity: 0;
+    transform: translateY(60px) scale(0.6);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Exit animate keyframes */
+@keyframes upToDownExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(60px) scale(0.6);
+  }
+}
+
+@keyframes downToUpExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.6);
+  }
+}
+
+@keyframes centerEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes centerExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.6);
   }
 }
 

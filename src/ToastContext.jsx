@@ -6,7 +6,7 @@ const ToastContext = createContext();
 
 export const useToast = () => useContext(ToastContext);
 
-export const ToastProvider = ({ children, position = "top-right" }) => {
+export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   // Generate unique ID safely
@@ -23,12 +23,12 @@ export const ToastProvider = ({ children, position = "top-right" }) => {
     "center-bottom",
   ];
 
-  // Show toast
+  // Show toast..
   const showToast = useCallback((toast) => {
     const newToast = { id: generateId(), ...toast };
     setToasts((prev) => [...prev, newToast]);
 
-    if (toast.duration !== 0) {
+    if (toast.duration !== 0 && toast.autoClose) {
       setTimeout(() => removeToast(newToast.id), toast.duration || 5000);
     }
   }, []);
@@ -38,20 +38,28 @@ export const ToastProvider = ({ children, position = "top-right" }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  // Remove all toast.
+  const removeToastAll = () => {
+    if (toasts.length > 0) {
+      setToasts([]);
+    }
+  };
+
   return (
-    <ToastContext.Provider value={{ showToast, removeToast }}>
+    <ToastContext.Provider value={{ showToast, removeToast, removeToastAll }}>
       {children}
 
       <div
         className={`toastContainer ${
-          positions.some((p) => p === position) ? position : "top-right"
+          positions.some((p) => p === toasts[0]?.position)
+            ? toasts[0]?.position
+            : "top-right"
         }`}
       >
         {toasts.map((toast) => (
           <Toast
             key={toast.id}
             {...toast}
-            position={position}
             remove={() => removeToast(toast.id)}
           />
         ))}

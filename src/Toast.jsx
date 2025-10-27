@@ -7,12 +7,13 @@ const Toast = ({
   message,
   type = "info",
   theme = "light",
+  position = "top-right",
   className = "",
   duration = 5000,
   actions = [],
   remove,
-  position,
   progress = true,
+  autoClose = true,
   closable = true,
   pauseOnHover = true,
   pauseOnFocusLoss = true,
@@ -22,13 +23,32 @@ const Toast = ({
   const remaining = useRef(duration); // how much time is left
   const [progressWidth, setProgressWidth] = useState(100); // progress bar %
   const [isPaused, setPaused] = useState(false); // For timer pause
+  const [exiting, setExiting] = useState(false);
+
+  // Styles [Animation]
+  // entry animation [based on position]
+  const enterAnim = `${
+    (position.startsWith("top") && "upToDown") ||
+    (position.startsWith("bottom") && "downToUp") ||
+    (position.endsWith("top") && "upToDown") ||
+    (position.endsWith("bottom") && "downToUp") ||
+    "centerEnter"
+  } 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+
+  // exit animation [reverse direction]
+  const exitAnim = `${
+    (position.startsWith("top") && "downToUpExit") ||
+    (position.startsWith("bottom") && "upToDownExit") ||
+    (position.endsWith("top") && "downToUpExit") ||
+    (position.endsWith("bottom") && "upToDownExit") ||
+    "centerExit"
+  } 0.25s cubic-bezier(0.39, 0.575, 0.565, 1) forwards`;
 
   // Start auto-close timer.
   useEffect(() => {
-    if (duration !== 0) {
+    if (duration !== 0 && autoClose) {
       startTimer();
     }
-
     // pause/resume when window focus changes.
     const handleBlur = () => pauseOnFocusLoss && pauseTimer();
     const handleFocus = () => pauseOnFocusLoss && resumeTimer();
@@ -45,11 +65,13 @@ const Toast = ({
         window.removeEventListener("focus", handleFocus);
       }
     };
-  }, [duration, pauseOnFocusLoss]);
+  }, [duration, autoClose, pauseOnFocusLoss]);
 
   // --- Helpers Fun ---
   // for start
   const startTimer = () => {
+    if (!autoClose) return;
+
     intervalRef.current = setInterval(() => {
       // time to passed...
       const elapsed = Date.now() - start.current;
@@ -62,14 +84,14 @@ const Toast = ({
         // stop timer...
         clearInterval(intervalRef.current);
         // remove toast.
-        remove();
+        triggerExit();
       }
     }, 100);
   };
 
   // for pause
   const pauseTimer = () => {
-    if (isPaused) return;
+    if (isPaused && !autoClose) return;
     clearInterval(intervalRef.current);
     remaining.current = remaining.current - (Date.now() - start.current);
     setPaused(true);
@@ -77,24 +99,22 @@ const Toast = ({
 
   // for resume
   const resumeTimer = () => {
-    if (!isPaused) return;
+    if (!isPaused && !autoClose) return;
     start.current = Date.now();
     setPaused(false);
     startTimer();
   };
 
-  // Styles
-  const animation = `${
-    (position.startsWith("top") && "upToDown") ||
-    (position.startsWith("bottom") && "downToUp") ||
-    (position.endsWith("top") && "upToDown") ||
-    (position.endsWith("bottom") && "downToUp")
-  } 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+  // for exit
+  const triggerExit = () => {
+    setExiting(true);
+    setTimeout(() => remove(), 250); // Set and match exit animation duration.
+  };
 
   return (
     <>
       <div
-        style={{ animation }}
+        style={{ animation: exiting ? exitAnim : enterAnim }}
         className={`toast ${theme} ${className}`}
         onMouseEnter={pauseOnHover ? pauseTimer : undefined}
         onMouseLeave={pauseOnHover ? resumeTimer : undefined}
@@ -106,7 +126,7 @@ const Toast = ({
           </div>
 
           {closable && (
-            <button onClick={remove}>
+            <button onClick={() => triggerExit()}>
               <Icons name={"X"} />
             </button>
           )}
@@ -141,7 +161,7 @@ const Toast = ({
         )}
 
         {/* Progress Bar */}
-        {progress && duration !== 0 && (
+        {progress && duration !== 0 && autoClose && (
           <div className={`progress-container ${type}`}>
             <div
               className={`toast-progress ${type}`}
