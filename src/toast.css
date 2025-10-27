@@ -1,5 +1,5 @@
 /* Defaults */
-button,
+.toastContainer button,
 p,
 span {
   font: inherit;
