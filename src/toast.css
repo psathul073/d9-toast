@@ -67,6 +67,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: cursive;
+  font-size: smaller;
   transition: all 0.3s ease-in;
   will-change: transform, opacity;
 }
@@ -94,7 +95,6 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9rem;
   font-weight: 500;
 }
 

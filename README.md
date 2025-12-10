@@ -5,6 +5,8 @@
 ![npm downloads](https://img.shields.io/npm/dm/d9-toast?style=flat-square)
 ![License](https://img.shields.io/npm/l/d9-toast?style=flat-square)
 ![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black)
+[![Donate via Razorpay](https://img.shields.io/badge/Donate-Razorpay-blue)](https://rzp.io/rzp/eVnJ0oP)
+
 
 A lightweight, customizable toast notification library for React applications.
 
@@ -232,6 +234,16 @@ MIT © [Athul / D9 Coder]
 - Inspired by popular notification libraries
 - Built with React and modern web standards
 - Thanks to all contributors and users
+
+---
+
+## ❤️ Support My Work
+
+
+
+Donate here → https://rzp.io/rzp/eVnJ0oP
+
+[![Donate via Razorpay](https://img.shields.io/badge/Donate-Razorpay-blue)](https://rzp.io/rzp/eVnJ0oP)
 
 ---
 

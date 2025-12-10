@@ -1,6 +1,6 @@
 {
   "name": "d9-toast",
-  "version": "1.2.20",
+  "version": "1.2.21",
   "description": "Customizable toast notifications for React",
   "main": "dist/index.js",
   "type": "module",
@@ -19,10 +19,19 @@
     "react": ">=17",
     "react-dom": ">=17"
   },
+  "funding": {
+    "type": "donation",
+    "url": "https://rzp.io/rzp/eVnJ0oP"
+  },
   "keywords": [
     "react",
     "toast",
+    "react-component",
+    "push",
+    "alert",
+    "message",
     "notifications",
+    "d9-toast",
     "ui"
   ],
   "license": "MIT",
