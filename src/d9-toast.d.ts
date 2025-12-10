@@ -11,7 +11,7 @@ declare module "d9-toast" {
     | "submit";
 
   /** Theme variants */
-  export type ToastTheme = "light" | "dark";
+  export type ToastTheme = "light" | "dark" | "colored";
 
   /** Available toast positions */
   export type ToastPosition =
@@ -33,8 +33,8 @@ declare module "d9-toast" {
 
   /** Toast configuration options */
   export interface ToastOptions {
-    /** Main message text of the toast */
-    message: string;
+    /** Main message; can be string or any React node (you render non-strings as-is) */
+    message: string | React.ReactNode;
     /** Visual type (color/icon) */
     type?: ToastType;
     /** Duration in ms before auto-close (0 = persistent) */
@@ -43,6 +43,8 @@ declare module "d9-toast" {
     actions?: ToastAction[];
     /** Visual theme */
     theme?: ToastTheme;
+    /** Weather to show toast title */
+    title?: boolean;
     /** Whether to show progress bar */
     progress?: boolean;
     /** Allow manual close via X button */
@@ -57,12 +59,17 @@ declare module "d9-toast" {
     position?: ToastPosition;
     /** Whether the toast auto-closes after duration */
     autoClose?: boolean;
+    
   }
 
   /** Toast provider props for context setup */
   export interface ToastProviderProps {
     /** App children to wrap with ToastProvider */
     children: React.ReactNode;
+  }
+
+  export interface ToastData extends ToastOptions {
+    id: number;
   }
 
   /** Context value shape */
@@ -80,4 +87,10 @@ declare module "d9-toast" {
 
   /** Hook to trigger and manage toasts */
   export const useToast: () => ToastContextValue;
+
+  /** Export the Toast component props/type for advanced consumers */
+  export interface ToastProps extends ToastData {
+    remove: () => void;
+  }
+  export const Toast: React.FC<ToastProps>;
 }

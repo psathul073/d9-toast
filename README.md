@@ -1,25 +1,29 @@
 # D9-Toast
 
-Customizable toast notifications for React.
+![npm version](https://img.shields.io/npm/v/d9-toast?style=flat-square)
+![npm bundle size](https://img.shields.io/bundlephobia/min/d9-toast?style=flat-square)
+![npm downloads](https://img.shields.io/npm/dm/d9-toast?style=flat-square)
+![License](https://img.shields.io/npm/l/d9-toast?style=flat-square)
+![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black)
 
+A lightweight, customizable toast notification library for React applications.
 
-**Features:**
+## ✨ Features
 
-* Lightweight and fully customizable toast notifications.  
-* Built with React.  
-* Pure CSS included — no additional setup required.  
-* Easy to import and use in any React project.  
-* Supports multiple types: success, error, info, warning, loading, submit.  
-* Fully responsive and modern UI and smooth animation.  
-* Users can optionally add Tailwind CSS classes via `className` for custom styling.
+* **Lightweight & Customizable** – Minimal bundle size with extensive customization options
+* **React Native** – Built specifically for React with hooks support
+* **No External Dependencies** – Pure CSS included, works out of the box
+* **Multiple Toast Types** – Success, error, info, warning, loading, and submit states
+* **Responsive Design** – Modern UI with smooth animations across all devices
+* **Tailwind CSS Compatible** – Optional custom styling via `className` prop
+* **Flexible Positioning** – 7 different display positions
+* **Theme Support** – Light, dark, and colored themes
 
----
+## 📺 Demo
 
-## Demo
+[![Live Demo](https://img.shields.io/badge/Live_Demo-CodeSandbox-000000?style=for-the-badge&logo=codesandbox&logoColor=white)](https://codesandbox.io/embed/cqkyzm?view=preview&module=%2Fpublic%2Findex.html)
 
-[Click Here](https://codesandbox.io/embed/cqkyzm?view=preview&module=%2Fpublic%2Findex.html)
-
-## Installation
+## 📦 Installation
 
 ```bash
 npm install d9-toast
@@ -31,9 +35,7 @@ or
 yarn add d9-toast
 ```
 
----
-
-## Usage
+## 🚀 Quick Start
 
 ### 1. Wrap your app with `ToastProvider`
 
@@ -53,56 +55,149 @@ function Root() {
 export default Root;
 ```
 
-### 2. Trigger a toast using `useToast`
+### 2. Use toast notifications anywhere
 
 ```jsx
 import React from "react";
 import { useToast } from "d9-toast";
 
-function App() {
+function MyComponent() {
+  const { showToast } = useToast();
 
-  const { showToast, removeToast, removeToastAll } = useToast();
-
-  const Toast = () => {
+  const handleClick = () => {
     showToast({
-      message: "Hello World!",
-      type: "success", // success | error | info | warning | loading | submit
+      message: "Operation completed successfully!",
+      type: "success",
       position: "top-right",
       duration: 3000,
-      actions: [
-        { text: "Toast ID", callback: (toastId) => console.log(toastId) },
-        { text: "Submit", callback: () => console.log("Submit clicked") },
-      ], 
-      className: "bg-green-500 text-white shadow-lg", // optional Tailwind/custom styling
     });
   };
 
-  return <button onClick={Toast}>Show Toast</button>;
+  return <button onClick={handleClick}>Show Toast</button>;
 }
-
-export default App;
 ```
 
-### 3. Toast Options
+## 📖 API Reference
 
-| Option     | Type    | Default | Description                                                                |
-| ---------- | ------- | ------- | -------------------------------------------------------------------------- |
-| `message`  | string  | -       | Main message text of the toast                                                     |
-| `type`     | string  | `info`  | Type of toast (`success`, `error`, `info`, `warning`, `loading`, `submit`) |
-| `duration` | number  | 5000    | Auto-close duration in ms (0 for infinite)                                 |
-| `position`         | string  | `top-right` | Position of all toasts (`top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`, `center-top`, `center-bottom` ) |
-| `theme`            | string  | `light`     | Default theme for all toasts (`light` or `dark`)                                |
-| `pauseOnHover`     | boolean | `true`      | Pause timer when hovered                                                      |
-| `pauseOnFocusLoss` | boolean | `true`      | Pause timer when window/tab loses focus                                       |
-| `actions`  | array   | []      | Array of action objects `{ text: string, callback: function }`             |
-| `closable` | boolean | true    | Allow manual close via X button
-| `autoClose` | boolean | true    | Whether the toast auto-closes after duration button                                                           |
-| `progress` | boolean | true    | Whether to show progress bar                                                          |
-| `className` | string| " "   | Optional extra CSS/Tailwind classes to customize the toast bar                                                          |
+### `useToast()`
 
----
+Returns an object with toast management methods:
 
-## Development
+| Method | Description |
+|--------|-------------|
+| `showToast(options)` | Displays a new toast notification |
+| `removeToast(id)` | Removes a specific toast by ID |
+| `removeToastAll()` | Removes all active toasts |
+
+
+### Toast Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `message` | string \| React.ReactNode | **Required** | Toast content (supports JSX) |
+| `type` | string | `"info"` | Toast type: `success`, `error`, `info`, `warning`, `loading`, `submit` |
+| `position` | string | `"top-right"` | Position: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`, `center-top`, `center-bottom` |
+| `theme` | string | `"light"` | Theme: `light`, `dark`, `colored` |
+| `duration` | number | `5000` | Auto-close duration in ms (0 = infinite) |
+| `autoClose` | boolean | `true` | Whether toast auto-closes after duration |
+| `closable` | boolean | `true` | Show close (X) button |
+| `pauseOnHover` | boolean | `true` | Pause timer on hover |
+| `pauseOnFocusLoss` | boolean | `true` | Pause timer when window loses focus |
+| `progress` | boolean | `true` | Show progress bar |
+| `title` | boolean | `true` | Show toast header with type |
+| `actions` | Array | `[]` | Action buttons: `[{ text: string, callback: function }]` |
+| `className` | string | `""` | Additional CSS/Tailwind classes |
+
+## 💡 Advanced Usage
+
+### Custom Messages with JSX
+
+```jsx
+showToast({
+  message: (
+    <div>
+      <strong>Custom Content</strong>
+      <p>With formatted HTML/JSX</p>
+    </div>
+  ),
+  type: "info"
+});
+```
+
+### Action Buttons
+
+```jsx
+showToast({
+  message: "File uploaded successfully",
+  type: "success",
+  actions: [
+    { 
+      text: "View", 
+      callback: () => console.log("View clicked") 
+    },
+    { 
+      text: "Dismiss", 
+      callback: ({ id }) => removeToast(id) 
+    }
+  ]
+});
+```
+
+### Manual Control
+
+```jsx
+const { showToast, removeToast, removeToastAll } = useToast();
+
+// Show a persistent toast
+const toastId = showToast({
+  message: "Processing...",
+  type: "loading",
+  duration: 0 // Infinite
+});
+
+// Remove it later
+removeToast(toastId);
+
+// Clear all toasts
+removeToastAll();
+```
+
+## 🎨 Styling
+
+### Default CSS
+
+```jsx
+import "d9-toast/dist/toast.css";
+```
+
+### Custom Styling
+
+```jsx
+showToast({
+  message: "Custom styled toast",
+  className: "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-xl rounded-lg",
+  type: "info"
+});
+```
+
+### Theme Examples
+
+```jsx
+// Light theme (default)
+showToast({ message: "Light", theme: "light" });
+
+// Dark theme
+showToast({ message: "Dark", theme: "dark" });
+
+// Colored theme (uses type for color)
+showToast({ 
+  message: "Colored", 
+  theme: "colored", 
+  type: "success" 
+});
+```
+
+## 🔧 Development
 
 ### Build
 
@@ -110,20 +205,37 @@ export default App;
 npm run build
 ```
 
-* Copies JS to `dist/`
-* Copies CSS `(toast.css)` to `dist/`
+Outputs to `dist/` directory:
+- `dist/index.js` – JavaScript bundle
+- `dist/toast.css` – Default styles
 
-### Styling
+### Local Development
 
-* Default styling is included in dist/toast.css
-* Users can optionally override or extend styles using className
-
-```jsx
-import "d9-toast/dist/toast.css";
+```bash
+npm start
+# or
+npm run dev
 ```
-* Tailwind CSS is optional — you can pass Tailwind classes via className.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+MIT © [Athul / D9 Coder]
+
 ---
 
-## License
+## 🙏 Acknowledgments
 
-MIT
+- Inspired by popular notification libraries
+- Built with React and modern web standards
+- Thanks to all contributors and users
+
+---
+
+**Quick Links:**
+- [Report an Issue](https://github.com/psathul073/d9-toast/issues)
+- [View Source](https://github.com/psathul073/d9-toast)
+- [npm Package](https://www.npmjs.com/package/d9-toast)

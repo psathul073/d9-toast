@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import "./toast.css";
 import Icons from "./Icons";
 
@@ -15,6 +21,7 @@ const Toast = ({
   progress = true,
   autoClose = true,
   closable = true,
+  title = true,
   pauseOnHover = true,
   pauseOnFocusLoss = true,
 }) => {
@@ -26,23 +33,97 @@ const Toast = ({
   const [exiting, setExiting] = useState(false);
 
   // Styles [Animation]
-  // entry animation [based on position]
-  const enterAnim = `${
-    (position.startsWith("top") && "upToDown") ||
-    (position.startsWith("bottom") && "downToUp") ||
-    (position.endsWith("top") && "upToDown") ||
-    (position.endsWith("bottom") && "downToUp") ||
-    "centerEnter"
-  } 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+  const { enterAnim, exitAnim } = useMemo(() => {
+    // entry animation [based on position]
+    const baseEnter =
+      (position.startsWith("top") && "upToDown") ||
+      (position.startsWith("bottom") && "downToUp") ||
+      (position.endsWith("top") && "upToDown") ||
+      (position.endsWith("bottom") && "downToUp") ||
+      "centerEnter";
 
-  // exit animation [reverse direction]
-  const exitAnim = `${
-    (position.startsWith("top") && "downToUpExit") ||
-    (position.startsWith("bottom") && "upToDownExit") ||
-    (position.endsWith("top") && "downToUpExit") ||
-    (position.endsWith("bottom") && "upToDownExit") ||
-    "centerExit"
-  } 0.25s cubic-bezier(0.39, 0.575, 0.565, 1) forwards`;
+    // exit animation [reverse direction]
+    const baseExit =
+      (position.startsWith("top") && "downToUpExit") ||
+      (position.startsWith("bottom") && "upToDownExit") ||
+      (position.endsWith("top") && "downToUpExit") ||
+      (position.endsWith("bottom") && "upToDownExit") ||
+      "centerExit";
+
+    return {
+      enterAnim: `${baseEnter} 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`,
+      exitAnim: `${baseExit} 0.25s cubic-bezier(0.39, 0.575, 0.565, 1) forwards`,
+    };
+  }, [position]);
+
+  // --- Helpers Fun ---
+  // for start
+  const startTimer = useCallback(() => {
+    if (!autoClose) return;
+
+    intervalRef.current = setInterval(() => {
+      // time to passed...
+      const elapsed = Date.now() - start.current;
+      // time to left...
+      const timeToLeft = remaining.current - elapsed;
+      // set shrink bar...
+      setProgressWidth((timeToLeft / duration) * 100);
+
+      if (timeToLeft <= 0) {
+        // stop timer...
+        clearInterval(intervalRef.current);
+        // remove toast.
+        triggerExit();
+      }
+    }, 100);
+  }, [autoClose, duration]);
+
+  // for pause
+  const pauseTimer = useCallback(() => {
+    if (isPaused && !autoClose) return;
+    clearInterval(intervalRef.current);
+    remaining.current = remaining.current - (Date.now() - start.current);
+    setPaused(true);
+  }, [isPaused, autoClose]);
+
+  // for resume
+  const resumeTimer = useCallback(() => {
+    if (!isPaused && !autoClose) return;
+    start.current = Date.now();
+    setPaused(false);
+    startTimer();
+  }, [isPaused, autoClose, startTimer]);
+
+  // for exit
+  const triggerExit = useCallback(() => {
+    setExiting(true);
+    clearInterval(intervalRef.current);
+    setTimeout(() => remove(), 250); // Set and match exit animation duration.
+  }, [remove]);
+
+  // Toast actions...
+  const actionButtons = useMemo(() => {
+    if (actions.length === 0) return null;
+
+    return actions.slice(0, 2).map((a, idx) => (
+      <button
+        key={idx}
+        onClick={() => a.callback?.({ id })}
+        className={`action-btn ${
+          actions.length === 1
+            ? `action-btnA ${type}`
+            : idx === 0
+            ? `action-btnB ${type}`
+            : `action-btnA ${type}`
+        }`}
+      >
+        {a.text}
+      </button>
+    ));
+  }, [actions, type, id]);
+
+  const handleMouseEnter = pauseOnHover ? pauseTimer : undefined;
+  const handleMouseLeave = pauseOnHover ? resumeTimer : undefined;
 
   // Start auto-close timer.
   useEffect(() => {
@@ -67,97 +148,51 @@ const Toast = ({
     };
   }, [duration, autoClose, pauseOnFocusLoss]);
 
-  // --- Helpers Fun ---
-  // for start
-  const startTimer = () => {
-    if (!autoClose) return;
-
-    intervalRef.current = setInterval(() => {
-      // time to passed...
-      const elapsed = Date.now() - start.current;
-      // time to left...
-      const timeToLeft = remaining.current - elapsed;
-      // set shrink bar...
-      setProgressWidth((timeToLeft / duration) * 100);
-
-      if (timeToLeft <= 0) {
-        // stop timer...
-        clearInterval(intervalRef.current);
-        // remove toast.
-        triggerExit();
-      }
-    }, 100);
-  };
-
-  // for pause
-  const pauseTimer = () => {
-    if (isPaused && !autoClose) return;
-    clearInterval(intervalRef.current);
-    remaining.current = remaining.current - (Date.now() - start.current);
-    setPaused(true);
-  };
-
-  // for resume
-  const resumeTimer = () => {
-    if (!isPaused && !autoClose) return;
-    start.current = Date.now();
-    setPaused(false);
-    startTimer();
-  };
-
-  // for exit
-  const triggerExit = () => {
-    setExiting(true);
-    setTimeout(() => remove(), 250); // Set and match exit animation duration.
-  };
-
   return (
     <>
       <div
         style={{ animation: exiting ? exitAnim : enterAnim }}
-        className={`toast ${theme} ${className}`}
-        onMouseEnter={pauseOnHover ? pauseTimer : undefined}
-        onMouseLeave={pauseOnHover ? resumeTimer : undefined}
+        className={`toast ${theme === "colored" ? type : theme} ${className}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Header */}
-        <div className={`toastHeader ${type}`}>
-          <div className="title">
-            <Icons name={type} /> <p>{type.toUpperCase()}</p>
-          </div>
+        {title && (
+          <div className={`toastHeader ${type}`}>
+            <div className="title">
+              <Icons name={type} /> <p>{type.toUpperCase()}</p>
+            </div>
 
-          {closable && (
-            <button onClick={() => triggerExit()}>
-              <Icons name={"X"} />
-            </button>
-          )}
-        </div>
+            {closable && (
+              <button className="close-button" onClick={() => triggerExit()}>
+                <Icons name={"X"} />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Message */}
-        <p style={{ padding: "4px" }}>{message}</p>
+        {typeof message === "string" ? (
+          <>
+            <div className="toast-message__container">
+              <div className="toast-message">
+                {!title && <Icons name={type} className={type} />}
+                <p>{message}</p>
+              </div>
+              {closable && !title && (
+                <button className="close-button" onClick={() => triggerExit()}>
+                  <Icons name={"X"} />
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <div style={{ padding: "4px" }}>{message}</div>
+        )}
 
         {/* Actions */}
         {actions.length > 0 && (
-          <div className="toastActions">
-            {actions.map((a, idx) => {
-              if (idx < 2) {
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => a.callback?.({ id })}
-                    className={`action-btn ${
-                      actions.length === 1
-                        ? `action-btnA ${type}`
-                        : idx === 0
-                        ? `action-btnB ${type}`
-                        : `action-btnA ${type}`
-                    }`}
-                  >
-                    {a.text}
-                  </button>
-                );
-              }
-            })}
-          </div>
+          <div className="toastActions">{actionButtons}</div>
         )}
 
         {/* Progress Bar */}
@@ -176,4 +211,4 @@ const Toast = ({
   );
 };
 
-export default Toast;
+export default React.memo(Toast);

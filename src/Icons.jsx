@@ -1,4 +1,4 @@
-const Icons = ({name}) => {
+const Icons = ({ name, className }) => {
   const icons = {
     success: (
       <svg
@@ -6,6 +6,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <path
           fill="currentColor"
@@ -20,6 +26,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <path
           d="M16.707 2.293A.996.996 0 0 0 16 2H8a.996.996 0 0 0-.707.293l-5 5A.996.996 0 0 0 2 8v8c0 .266.105.52.293.707l5 5A.996.996 0 0 0 8 22h8c.266 0 .52-.105.707-.293l5-5A.996.996 0 0 0 22 16V8a.996.996 0 0 0-.293-.707l-5-5zM13 17h-2v-2h2v2zm0-4h-2V7h2v6z"
@@ -33,6 +45,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <path
           fill="currentColor"
@@ -46,6 +64,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <path
           fill="currentColor"
@@ -59,6 +83,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <g
           fill="none"
@@ -108,6 +138,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <g
           fill="none"
@@ -172,6 +208,12 @@ const Icons = ({name}) => {
         viewBox="0 0 24 24"
         width="1em"
         height="1em"
+        className={className}
+        style={{
+          backgroundColor: "transparent",
+          fontSize: "22px",
+          flexShrink: 0,
+        }}
       >
         <g fill="currentColor" fillRule="evenodd" clipRule="evenodd">
           <path d="M5.47 5.47a.75.75 0 0 1 1.06 0l12 12a.75.75 0 1 1-1.06 1.06l-12-12a.75.75 0 0 1 0-1.06" />
