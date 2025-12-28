@@ -11,7 +11,7 @@ import Icons from "./Icons";
 const Toast = ({
   id,
   message,
-  type = "info",
+  type = "success",
   theme = "light",
   position = "top-right",
   className = "",
@@ -20,7 +20,7 @@ const Toast = ({
   remove,
   progress = true,
   autoClose = true,
-  closable = true,
+  closable = false,
   title = true,
   pauseOnHover = true,
   pauseOnFocusLoss = true,
@@ -105,21 +105,27 @@ const Toast = ({
   const actionButtons = useMemo(() => {
     if (actions.length === 0) return null;
 
-    return actions.slice(0, 2).map((a, idx) => (
-      <button
-        key={idx}
-        onClick={() => a.callback?.({ id })}
-        className={`action-btn ${
-          actions.length === 1
-            ? `action-btnA ${type}`
-            : idx === 0
-            ? `action-btnB ${type}`
-            : `action-btnA ${type}`
-        }`}
-      >
-        {a.text}
-      </button>
-    ));
+    return actions.slice(0, 2).map((a, idx) => {
+      // Dynamic class names..
+      const btnType =
+        actions.length === 1
+          ? `action-btnA__${type}`
+          : idx === 0
+          ? `action-btnB__${type}`
+          : `action-btnA__${type}`;
+
+      const classNameStr = `action-btn ${btnType} ${a.className || ""}`.trim();
+      return (
+        <button
+          aria-label={`Action ${a.text}`}
+          key={idx}
+          onClick={() => a.callback?.({ id })}
+          className={classNameStr}
+        >
+          {a.text}
+        </button>
+      );
+    });
   }, [actions, type, id]);
 
   const handleMouseEnter = pauseOnHover ? pauseTimer : undefined;
@@ -164,7 +170,11 @@ const Toast = ({
             </div>
 
             {closable && (
-              <button className="close-button" onClick={() => triggerExit()}>
+              <button
+                className="close-button"
+                aria-label="Close button"
+                onClick={() => triggerExit()}
+              >
                 <Icons name={"X"} />
               </button>
             )}
@@ -180,7 +190,11 @@ const Toast = ({
                 <p>{message}</p>
               </div>
               {closable && !title && (
-                <button className="close-button" onClick={() => triggerExit()}>
+                <button
+                  className="close-button"
+                  aria-label="Close button"
+                  onClick={() => triggerExit()}
+                >
                   <Icons name={"X"} />
                 </button>
               )}

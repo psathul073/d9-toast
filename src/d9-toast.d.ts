@@ -27,6 +27,8 @@ declare module "d9-toast" {
   export interface ToastAction {
     /** Text label for the action button */
     text: string;
+    /** Extra custom class names */
+    className: string;
     /** Optional callback triggered on click */
     callback?: (toast: { id: number }) => void;
   }

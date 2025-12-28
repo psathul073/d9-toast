@@ -97,17 +97,17 @@ Returns an object with toast management methods:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `message` | string \| React.ReactNode | **Required** | Toast content (supports JSX) |
-| `type` | string | `"info"` | Toast type: `success`, `error`, `info`, `warning`, `loading`, `submit` |
+| `type` | string | `"success"` | Toast type: `success`, `error`, `info`, `warning`, `loading`, `submit` |
 | `position` | string | `"top-right"` | Position: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`, `center-top`, `center-bottom` |
 | `theme` | string | `"light"` | Theme: `light`, `dark`, `colored` |
 | `duration` | number | `5000` | Auto-close duration in ms (0 = infinite) |
 | `autoClose` | boolean | `true` | Whether toast auto-closes after duration |
-| `closable` | boolean | `true` | Show close (X) button |
+| `closable` | boolean | `false` | Show close (X) button |
 | `pauseOnHover` | boolean | `true` | Pause timer on hover |
 | `pauseOnFocusLoss` | boolean | `true` | Pause timer when window loses focus |
 | `progress` | boolean | `true` | Show progress bar |
 | `title` | boolean | `true` | Show toast header with type |
-| `actions` | Array | `[]` | Action buttons: `[{ text: string, callback: function }]` |
+| `actions` | Array | `[]` | Action buttons: `[{ text: string, className: string, callback: function }]` |
 | `className` | string | `""` | Additional CSS/Tailwind classes |
 
 ## 💡 Advanced Usage
@@ -135,9 +135,11 @@ showToast({
   actions: [
     { 
       text: "View", 
+      className: "",
       callback: () => console.log("View clicked") 
     },
     { 
+      className: "",
       text: "Dismiss", 
       callback: ({ id }) => removeToast(id) 
     }
