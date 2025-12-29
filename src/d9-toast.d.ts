@@ -77,7 +77,7 @@ declare module "d9-toast" {
   /** Context value shape */
   export interface ToastContextValue {
     /** Show a toast with given options */
-    showToast: (toast: ToastOptions) => void;
+    showToast: (toast: ToastOptions) => number;
     /** Remove a toast by ID */
     removeToast: (id: number) => void;
     /** Remove all active toasts */

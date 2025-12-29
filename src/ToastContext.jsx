@@ -31,6 +31,7 @@ export const ToastProvider = ({ children }) => {
     if (toast.duration !== 0 && toast.autoClose) {
       setTimeout(() => removeToast(newToast.id), toast.duration || 5000);
     }
+    return newToast?.id;
   }, []);
 
   // Remove toast

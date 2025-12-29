@@ -97,11 +97,12 @@
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-size: smaller;
-  font-family: cursive;
+  font-family: Arial, Helvetica, sans-serif;
   transition: all 0.3s ease-in;
   will-change: transform, opacity;
   background-color: var(--primary-bg);
   color: var(--primary-color);
+  backdrop-filter: blur(10px);
 }
 
 /* Theme colors */
