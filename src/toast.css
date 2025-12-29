@@ -87,7 +87,7 @@
 
 .toast {
   position: relative;
-  min-width: 310px;
+  min-width: 250px;
   max-width: 425px;
   display: flex;
   flex-direction: column;
@@ -104,6 +104,7 @@
   color: var(--primary-color);
   backdrop-filter: blur(10px);
 }
+
 
 /* Theme colors */
 .light {
@@ -231,7 +232,7 @@
   padding: 8px 12px;
   font-size: 14px;
   border-radius: 6px;
-  box-shadow: inset 0px 0px 1px #0b0b0b89;
+  box-shadow:  0px 0px 1px #0b0b0b89;
   flex-shrink: 0;
   cursor: pointer;
 }
@@ -269,8 +270,7 @@
 /* Action button 2 */
 .action-btnB__success {
   color: var(--success-color);
-  border-color: currentColor;
-  background-color: transparent;
+  background-color: var(--success-bg);
 }
 .action-btnB__error {
   color: var(--error-color);
@@ -278,19 +278,16 @@
 }
 .action-btnB__info {
   color: var(--info-color);
-  border-color: currentColor;
-  background-color: transparent;
+  background-color: var(--info-bg);
 }
 .action-btnB__warning {
   color: var(--warning-color);
-  border-color: currentColor;
-  background-color: transparent;
+  background-color: var(--warning-bg);
 }
 .action-btnB__loading,
 .action-btnB__submit {
   color: var(--loading-color);
-  border-color: currentColor;
-  background-color: transparent;
+ background-color: var(--loading-bg);
 }
 
 .progress-container {
@@ -391,5 +388,16 @@
   to {
     opacity: 0;
     transform: scale(0.6);
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .toastContainer.top-right,
+  .toastContainer.bottom-right {
+    right: 0px;
+  }
+  .toastContainer.top-left,
+  .toastContainer.bottom-left {
+    left: 0px;
   }
 }
