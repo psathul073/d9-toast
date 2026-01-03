@@ -4,25 +4,33 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/min/d9-toast?style=flat-square)
 ![npm downloads](https://img.shields.io/npm/dm/d9-toast?style=flat-square)
 ![License](https://img.shields.io/npm/l/d9-toast?style=flat-square)
-![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black)
+![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square\&logo=react\&logoColor=black)
 [![Donate via Razorpay](https://img.shields.io/badge/Donate-Razorpay-blue)](https://rzp.io/rzp/eVnJ0oP)
 
-A lightweight, customizable toast notification library for React applications.
+A **lightweight, fully typed, customizable toast notification library** for React applications.
+
+---
 
 ## ✨ Features
 
-- **Lightweight & Customizable** – Minimal bundle size with extensive customization options
-- **React Native** – Built specifically for React with hooks support
-- **No External Dependencies** – Pure CSS included, works out of the box
-- **Multiple Toast Types** – Success, error, info, warning, loading, and submit states
-- **Responsive Design** – Modern UI with smooth animations across all devices
-- **Tailwind CSS Compatible** – Optional custom styling via `className` prop
-- **Flexible Positioning** – 7 different display positions
-- **Theme Support** – Light, dark, and colored themes
+* ⚡ **Lightweight & Fast** – Minimal bundle size
+* 🔒 **100% TypeScript Support** – Strongly typed API
+* 🎨 **Themes** – Light, Dark & Colored
+* 🔔 **Audio Support** – Custom toast sounds with cooldown
+* 🎯 **Multiple Positions** – 7 flexible placements
+* 🧩 **Action Buttons** – Custom actions per toast
+* ⏱ **Auto / Manual Control**
+* 🧪 **No External Dependencies**
+* 🎭 **Tailwind Compatible**
+* 📱 **Responsive & Animated UI**
+
+---
 
 ## 📺 Demo
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-CodeSandbox-000000?style=for-the-badge&logo=codesandbox&logoColor=white)](https://codesandbox.io/embed/cqkyzm?view=preview&module=%2Fpublic%2Findex.html)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-CodeSandbox-000000?style=for-the-badge\&logo=codesandbox\&logoColor=white)](https://codesandbox.io/embed/cqkyzm?view=preview)
+
+---
 
 ## 📦 Installation
 
@@ -36,220 +44,229 @@ or
 yarn add d9-toast
 ```
 
+---
+
 ## 🚀 Quick Start
 
 ### 1. Wrap your app with `ToastProvider`
 
 ```jsx
-import React from "react";
 import { ToastProvider } from "d9-toast";
-import App from "./App";
 
-function Root() {
+export default function Root() {
   return (
     <ToastProvider>
       <App />
     </ToastProvider>
   );
 }
-
-export default Root;
 ```
 
-### 2. Use toast notifications anywhere
+---
+
+### 2. Trigger toasts anywhere
 
 ```jsx
-import React from "react";
 import { useToast } from "d9-toast";
 
 function MyComponent() {
   const { showToast } = useToast();
 
-  const handleClick = () => {
-    showToast({
-      message: "Operation completed successfully!",
-      type: "success",
-      position: "top-right",
-      duration: 3000,
-    });
-  };
-
-  return <button onClick={handleClick}>Show Toast</button>;
+  return (
+    <button
+      onClick={() =>
+        showToast({
+          message: "Saved successfully!",
+          type: "success",
+        })
+      }
+    >
+      Show Toast
+    </button>
+  );
 }
 ```
+
+---
 
 ## 📖 API Reference
 
 ### `useToast()`
 
-Returns an object with toast management methods:
+```ts
+const { showToast, removeToast, removeToastAll } = useToast();
+```
 
 | Method               | Description                       |
 | -------------------- | --------------------------------- |
-| `showToast(options)` | Displays a new toast notification |
-| `removeToast(id)`    | Removes a specific toast by ID    |
-| `removeToastAll()`   | Removes all active toasts         |
+| `showToast(options)` | Show a toast and returns its `id` |
+| `removeToast(id)`    | Remove toast by ID                |
+| `removeToastAll()`   | Clear all toasts                  |
 
-### Toast Options
+---
 
-| Option             | Type                      | Default       | Description                                                                                               |
-| ------------------ | ------------------------- | ------------- | --------------------------------------------------------------------------------------------------------- |
-| `message`          | string \| React.ReactNode | **Required**  | Toast content (supports JSX)                                                                              |
-| `type`             | string                    | `"success"`   | Toast type: `success`, `error`, `info`, `warning`, `loading`, `submit`                                    |
-| `position`         | string                    | `"top-right"` | Position: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`, `center-top`, `center-bottom` |
-| `theme`            | string                    | `"light"`     | Theme: `light`, `dark`, `colored`                                                                         |
-| `duration`         | number                    | `5000`        | Auto-close duration in ms (0 = infinite)                                                                  |
-| `autoClose`        | boolean                   | `true`        | Whether toast auto-closes after duration                                                                  |
-| `closable`         | boolean                   | `false`       | Show close (X) button                                                                                     |
-| `pauseOnHover`     | boolean                   | `true`        | Pause timer on hover                                                                                      |
-| `pauseOnFocusLoss` | boolean                   | `true`        | Pause timer when window loses focus                                                                       |
-| `progress`         | boolean                   | `true`        | Show progress bar                                                                                         |
-| `title`            | boolean                   | `true`        | Show toast header with type                                                                               |
-| `actions`          | Array                     | `[]`          | Action buttons: `[{ text: string, className: string, callback: function }]`                               |
-| `className`        | string                    | `""`          | Additional CSS/Tailwind classes[Use !important with Tailwind]                                             |
+## 🔧 Toast Options
 
-## 💡 Advanced Usage
+### Core Options
 
-### Custom Messages with JSX
+| Option             | Type                                                                                                          | Description                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `message`          | `string \| ReactNode`                                                                                         | **Required** content               |
+| `type`             | `"success" \| "error" \| "info" \| "warning" \| "loading" \| "submit"`                                        | Visual type                        |
+| `theme`            | `"light" \| "dark" \| "colored"`                                                                              | Theme variant                      |
+| `position`         | `"top-right" \| "top-left" \| "bottom-right" \| "bottom-left" \| "center" \| "center-top" \| "center-bottom"` | Toast placement                    |
+| `duration`         | `number`                                                                                                      | Auto-close duration (0 = infinite) |
+| `autoClose`        | `boolean`                                                                                                     | Enable auto close                  |
+| `closable`         | `boolean`                                                                                                     | Show close (X) button              |
+| `progress`         | `boolean`                                                                                                     | Show progress bar                  |
+| `title`            | `boolean`                                                                                                     | Show header/title                  |
+| `pauseOnHover`     | `boolean`                                                                                                     | Pause on hover                     |
+| `pauseOnFocusLoss` | `boolean`                                                                                                     | Pause on tab switch                |
+| `className`        | `string`                                                                                                      | Custom styles                      |
 
-```jsx
-showToast({
-  message: (
-    <div>
-      <strong>Custom Content</strong>
-      <p>With formatted HTML/JSX</p>
-    </div>
-  ),
-  type: "info",
-});
+---
+
+### 🔘 Actions
+
+```ts
+actions?: {
+  text: string;
+  className?: string;
+  callback?: (toast: { id: number }) => void;
+}[];
 ```
 
-### Action Buttons
+**Example**
 
 ```jsx
 showToast({
-  message: "File uploaded successfully",
-  type: "success",
+  message: "File uploaded",
   actions: [
     {
-      text: "View",
-      className: "!bg-gray-600 !text-white",
-      callback: () => console.log("View clicked"),
-    },
-    {
-      text: "Dismiss",
-      className: "!bg-gray-600/20 !text-white",
+      text: "Undo",
       callback: ({ id }) => removeToast(id),
     },
   ],
 });
 ```
 
-### Manual Control
+---
 
-```jsx
-const { showToast, removeToast, removeToastAll } = useToast();
+## 🔊 Audio Support (NEW)
 
-// Show a persistent toast
-const toastId = showToast({
-  message: "Processing...",
-  type: "loading",
-  duration: 0, // Infinite
-});
+### Audio Options
 
-// Remove it later
-removeToast(toastId);
-
-// Clear all toasts
-removeToastAll();
+```ts
+audio?: {
+  enabled?: boolean;
+  volume?: number; // 0 – 1
+  audioFile?: string;
+  cooldown?: number; // ms
+};
 ```
 
-## 🎨 Styling
-
-### Default CSS
+### Example
 
 ```jsx
-import "d9-toast/dist/toast.css";
-```
-
-### Custom Styling
-
-```jsx
-// optional Tailwind/custom styling [Use !important with Tailwind (className: "!bg-red-500")]
 showToast({
-  message: "Custom styled toast",
-  className:
-    "bg-gradient-to-r from-gray-800 to-gray-600 !text-white !shadow-xl !rounded-lg",
+  message: "Message sent",
   type: "success",
+  audio: {
+    enabled: true,
+    volume: 0.8,
+    cooldown: 500,
+  },
 });
 ```
 
-### Theme Examples
-
-```jsx
-// Light theme (default)
-showToast({ message: "Light", theme: "light" });
-
-// Dark theme
-showToast({ message: "Dark", theme: "dark" });
-
-// Colored theme (uses type for color)
-showToast({
-  message: "Colored",
-  theme: "colored",
-  type: "success",
-});
-```
-
-## 🔧 Development
-
-### Build
-
-```bash
-npm run build
-```
-
-Outputs to `dist/` directory:
-
-- `dist/index.js` – JavaScript bundle
-- `dist/toast.css` – Default styles
-
-### Local Development
-
-```bash
-npm start
-# or
-npm run dev
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-MIT © [Athul / D9 Coder]
+✔ Prevents sound spam
+✔ Per-toast control
+✔ Custom audio file supported
 
 ---
 
-## 🙏 Acknowledgments
+## 🎨 Styling
 
-- Inspired by popular notification libraries
-- Built with React and modern web standards
-- Thanks to all contributors and users
+### Default Styles
+
+```js
+import "d9-toast/dist/toast.css";
+```
+
+### Tailwind / Custom Styling
+
+```jsx
+showToast({
+  message: "Styled Toast",
+  className:
+    "!bg-gradient-to-r from-indigo-600 to-purple-600 !text-white !rounded-xl",
+});
+```
+
+> ⚠️ Use `!important` when overriding styles with Tailwind
+
+---
+
+## 🧠 Advanced Usage
+
+### Persistent Toast
+
+```jsx
+const id = showToast({
+  message: "Loading...",
+  type: "loading",
+  duration: 0,
+});
+
+// later
+removeToast(id);
+```
+
+---
+
+### JSX Content
+
+```jsx
+showToast({
+  message: (
+    <>
+      <strong>Custom JSX</strong>
+      <p>This supports React nodes</p>
+    </>
+  ),
+});
+```
+
+---
+
+## 🧾 TypeScript Support
+
+D9-Toast ships with **full TypeScript definitions**:
+
+```ts
+import type { ToastOptions, ToastType } from "d9-toast";
+```
+
+✔ IntelliSense
+✔ Strict typing
+✔ No `any`
+
+---
+
+## 📄 License
+
+MIT © **Athul / D9 Coder**
 
 ---
 
 ## ❤️ Support My Work
 
-Donate here → https://rzp.io/rzp/eVnJ0oP
-
-[![Donate via Razorpay](https://img.shields.io/badge/Donate-Razorpay-blue)](https://rzp.io/rzp/eVnJ0oP)
+👉 [https://rzp.io/rzp/eVnJ0oP](https://rzp.io/rzp/eVnJ0oP)
 
 ---
 
-**Quick Links:**
+## 🔗 Links
 
-- [Report an Issue](https://github.com/psathul073/d9-toast/issues)
-- [View Source](https://github.com/psathul073/d9-toast)
-- [npm Package](https://www.npmjs.com/package/d9-toast)
+* 🐞 [Report Issue](https://github.com/psathul073/d9-toast/issues)
+* 💻 [Source Code](https://github.com/psathul073/d9-toast)
+* 📦 [npm Package](https://www.npmjs.com/package/d9-toast)

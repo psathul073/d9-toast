@@ -28,9 +28,21 @@ declare module "d9-toast" {
     /** Text label for the action button */
     text: string;
     /** Extra custom class names */
-    className: string;
+    className?: string;
     /** Optional callback triggered on click */
     callback?: (toast: { id: number }) => void;
+  }
+
+  /** Audio configuration for toast sound */
+  export interface ToastAudioOptions {
+    /** Enable or disable toast sound */
+    enabled?: boolean;
+    /** Audio volume (0 to 1) */
+    volume?: number;
+    /** Custom audio file */
+    audioFile?: string;
+    /** Cooldown in milliseconds between sounds */
+    cooldown?: number;
   }
 
   /** Toast configuration options */
@@ -45,7 +57,7 @@ declare module "d9-toast" {
     actions?: ToastAction[];
     /** Visual theme */
     theme?: ToastTheme;
-    /** Weather to show toast title */
+    /** Whether to show toast title */
     title?: boolean;
     /** Whether to show progress bar */
     progress?: boolean;
@@ -61,27 +73,29 @@ declare module "d9-toast" {
     position?: ToastPosition;
     /** Whether the toast auto-closes after duration */
     autoClose?: boolean;
-    
+    /** Audio configuration for this toast */
+    audio?: ToastAudioOptions;
   }
 
-  /** Toast provider props for context setup */
-  export interface ToastProviderProps {
-    /** App children to wrap with ToastProvider */
-    children: React.ReactNode;
-  }
-
+  /** Internal toast data with generated id */
   export interface ToastData extends ToastOptions {
     id: number;
   }
 
   /** Context value shape */
   export interface ToastContextValue {
-    /** Show a toast with given options */
+    /** Show a toast with given options and return toast id */
     showToast: (toast: ToastOptions) => number;
     /** Remove a toast by ID */
     removeToast: (id: number) => void;
     /** Remove all active toasts */
     removeToastAll: () => void;
+  }
+
+  /** Toast provider props for context setup */
+  export interface ToastProviderProps {
+    /** App children to wrap with ToastProvider */
+    children: React.ReactNode;
   }
 
   /** Context provider component */
@@ -94,5 +108,7 @@ declare module "d9-toast" {
   export interface ToastProps extends ToastData {
     remove: () => void;
   }
+
+  /** Toast component */
   export const Toast: React.FC<ToastProps>;
 }
