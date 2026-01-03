@@ -6,15 +6,17 @@ import React, {
   useState,
 } from "react";
 import Toast from "./Toast";
-import mySound from "./assets/sounds/toast.m4a";
 import "./toast.css";
+
+export const DEFAULT_TOAST_SOUND =
+  "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/toast.m4a";
 
 const ToastContext = createContext();
 
 export const useToast = () => useContext(ToastContext);
 
 const audioSettings = {
-  audioFile: mySound,
+  audioFile: DEFAULT_TOAST_SOUND,
   volume: 0.8,
   enabled: true,
   cooldown: 500,
@@ -25,26 +27,23 @@ export const ToastProvider = ({ children }) => {
   const lastSoundTimeRef = useRef(0);
 
   // Audio player..
-  const playAudio = useCallback(
-    ({ audioFile, volume = 0.6, enabled = true }) => {
-      if (!enabled || !audioFile) return;
+  const playAudio = useCallback(({ audioFile, volume = 0.8 }) => {
+    if (!audioFile || typeof window === "undefined") return;
 
-      try {
-        const audio = new Audio(audioFile);
-        audio.volume = volume;
-        audio.play().catch(() => {});
-      } catch (err) {
-        console.error("Audio play error:", err);
-      }
-    },
-    []
-  );
+    try {
+      const audio = new Audio(audioFile);
+      audio.volume = volume;
+      audio.play().catch(() => {});
+    } catch (err) {
+      console.error("Audio play error:", err);
+    }
+  }, []);
 
   // Generate unique ID safely
-  const generateId = () => Date.now() + Math.random();
-
-  // Positions.
-  // const positions = [
+  const generateId = () =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString() + Math.random().toString(36);
 
   // Show toast..
   const showToast = useCallback(
@@ -100,10 +99,8 @@ export const ToastProvider = ({ children }) => {
 
   // Remove all toast.
   const removeToastAll = useCallback(() => {
-    if (toasts.length > 0) {
-      setToasts([]);
-    }
-  }, [toasts.length]);
+    setToasts([]);
+  }, []);
 
   // Group toasts by there positions..
   const groupedToasts = toasts.reduce((acc, toast) => {
