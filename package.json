@@ -1,6 +1,6 @@
 {
   "name": "d9-toast",
-  "version": "1.4.28",
+  "version": "1.4.29",
   "description": "Customizable toast notifications for React",
   "homepage": "https://codesandbox.io/embed/cqkyzm?view=preview",
   "repository": {

@@ -23,6 +23,15 @@ declare module "d9-toast" {
     | "center-top"
     | "center-bottom";
 
+  /** Available toast sounds */
+  export interface ToastSounds {
+    default: string;
+    success: string;
+    warning: string;
+    error: string;
+    info: string;
+  }
+
   /** Single button/action displayed inside a toast */
   export interface ToastAction {
     /** Text label for the action button */
@@ -84,6 +93,8 @@ declare module "d9-toast" {
 
   /** Context value shape */
   export interface ToastContextValue {
+    /** Default toast sounds */
+    sounds: ToastSounds,
     /** Show a toast with given options and return toast id */
     showToast: (toast: ToastOptions) => number;
     /** Remove a toast by ID */

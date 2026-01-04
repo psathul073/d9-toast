@@ -94,11 +94,12 @@ function MyComponent() {
 ### `useToast()`
 
 ```ts
-const { showToast, removeToast, removeToastAll } = useToast();
+const { sounds, showToast, removeToast, removeToastAll } = useToast();
 ```
 
 | Method               | Description                       |
 | -------------------- | --------------------------------- |
+| `sounds`             | Available toast sounds  `"success" \| "error" \| "info" \| "warning"` |
 | `showToast(options)` | Show a toast and returns its `id` |
 | `removeToast(id)`    | Remove toast by ID                |
 | `removeToastAll()`   | Clear all toasts                  |
@@ -139,6 +140,7 @@ actions?: {
 **Example**
 
 ```jsx
+
 showToast({
   message: "File uploaded",
   actions: [
@@ -168,6 +170,8 @@ audio?: {
 ### Example
 
 ```jsx
+const { sounds, showToast } = useToast();
+
 showToast({
   message: "Message sent",
   type: "success",
@@ -175,6 +179,7 @@ showToast({
     enabled: true,
     volume: 0.8,
     cooldown: 500,
+    audioFile: sounds.success,
   },
 });
 ```

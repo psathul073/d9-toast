@@ -10,16 +10,25 @@ import React, {
 import Toast from "./Toast";
 import "./toast.css";
 
-export const DEFAULT_TOAST_SOUND =
-  "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/toast.m4a";
+const sounds = {
+  default:
+    "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/default.mp3",
+  success:
+    "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/success.mp3",
+  warning:
+    "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/warning.mp3",
+  error:
+    "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/errors.mp3",
+  info: "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/info.mp3",
+};
 
 const ToastContext = createContext();
 
 export const useToast = () => useContext(ToastContext);
 
 const audioSettings = {
-  audioFile: DEFAULT_TOAST_SOUND,
-  volume: 0.8,
+  audioFile: sounds.default,
+  volume: 0.6,
   enabled: true,
   cooldown: 500,
 };
@@ -117,6 +126,7 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider
       value={{
+        sounds,
         showToast,
         removeToast,
         removeToastAll,
