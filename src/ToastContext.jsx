@@ -38,7 +38,7 @@ export const ToastProvider = ({ children }) => {
   const lastSoundTimeRef = useRef(0);
 
   // Audio player..
-  const playAudio = useCallback(({ audioFile, volume = 0.8 }) => {
+  const playAudio = useCallback(({ audioFile, volume = 0.6 }) => {
     if (!audioFile || typeof window === "undefined") return;
 
     try {

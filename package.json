@@ -1,11 +1,11 @@
 {
   "name": "d9-toast",
-  "version": "1.4.29",
+  "version": "1.4.30",
   "description": "Customizable toast notifications for React",
   "homepage": "https://codesandbox.io/embed/cqkyzm?view=preview",
   "repository": {
     "type": "git",
-    "url": "https://github.com/psathul073/d9-toast.git"
+    "url": "git+https://github.com/psathul073/d9-toast.git"
   },
   "bugs": {
     "url": "https://github.com/psathul073/d9-toast/issues"
