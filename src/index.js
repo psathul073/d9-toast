@@ -1,3 +1,2 @@
-import "./toast.css"; // default styles
-export { ToastProvider, useToast } from "./ToastContext";
+export { ToastProvider, useToast } from "./ToastContext.js";
 

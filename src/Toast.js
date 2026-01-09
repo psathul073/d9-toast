@@ -7,8 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import "./toast.css";
-import Icons from "./Icons";
+import Icons from "./Icons.js";
 
 const Toast = ({
   id,
@@ -17,7 +16,7 @@ const Toast = ({
   theme = "light",
   position = "top-right",
   className = "",
-  duration = 5000,
+  duration = 4000,
   actions = [],
   remove,
   progress = true,
@@ -27,12 +26,15 @@ const Toast = ({
   pauseOnHover = true,
   pauseOnFocusLoss = true,
 }) => {
-  const intervalRef = useRef(null); // stores the interval ID
-  const start = useRef(Date.now()); // stores the moment timer started
-  const remaining = useRef(duration); // how much time is left
-  const [progressWidth, setProgressWidth] = useState(100); // progress bar %
-  const [isPaused, setPaused] = useState(false); // For timer pause
+  const [progressWidth, setProgressWidth] = useState(100);
   const [exiting, setExiting] = useState(false);
+  const [isPausedState, setIsPausedState] = useState(false); // Only for UI/State checks..
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const initialDuration = useRef(duration);
+  const start = useRef(Date.now());
+  const remaining = useRef(duration);
+  const isPausedRef = useRef(false); // Use for internal logic to avoid loops..
 
   // Styles [Animation]
   const { enterAnim, exitAnim } = useMemo(() => {
@@ -59,17 +61,38 @@ const Toast = ({
   }, [position]);
 
   // --- Helpers Fun ---
+
+  // for exit
+  const triggerExit = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    setExiting(true);
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    timeoutRef.current = setTimeout(() => remove(), 250); // Set and match exit animation duration.
+  }, [remove]);
+
   // for start
   const startTimer = useCallback(() => {
-    if (!autoClose) return;
+    if (!autoClose || initialDuration.current === 0) return;
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    // Update the start point every time we (re)start the interval.
+    start.current = Date.now();
 
     intervalRef.current = setInterval(() => {
+      // If we are paused, we don't do anything, but the interval stays alive.
+      if (isPausedRef.current) return;
+
       // time to passed...
       const elapsed = Date.now() - start.current;
       // time to left...
       const timeToLeft = remaining.current - elapsed;
       // set shrink bar...
-      setProgressWidth((timeToLeft / duration) * 100);
+      const percent = (timeToLeft / initialDuration.current) * 100;
+      setProgressWidth(Math.max(0, percent));
 
       if (timeToLeft <= 0) {
         // stop timer...
@@ -77,31 +100,30 @@ const Toast = ({
         // remove toast.
         triggerExit();
       }
-    }, 100);
-  }, [autoClose, duration]);
+    }, 50); // Add 50ms is smoother for progress bars..
+  }, [autoClose, triggerExit]);
 
   // for pause
   const pauseTimer = useCallback(() => {
-    if (isPaused && !autoClose) return;
-    clearInterval(intervalRef.current);
-    remaining.current = remaining.current - (Date.now() - start.current);
-    setPaused(true);
-  }, [isPaused, autoClose]);
+    if (!autoClose || isPausedRef.current) return;
+
+    // Calculate exactly what was left at the moment of pause..
+    const elapsed = Date.now() - start.current;
+    remaining.current = remaining.current - elapsed;
+
+    isPausedRef.current = true;
+    setIsPausedState(true);
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  }, [autoClose]);
 
   // for resume
   const resumeTimer = useCallback(() => {
-    if (!isPaused && !autoClose) return;
-    start.current = Date.now();
-    setPaused(false);
+    if (!autoClose || !isPausedRef.current) return;
+    isPausedRef.current = false;
+    setIsPausedState(false);
     startTimer();
-  }, [isPaused, autoClose, startTimer]);
-
-  // for exit
-  const triggerExit = useCallback(() => {
-    setExiting(true);
-    clearInterval(intervalRef.current);
-    setTimeout(() => remove(), 250); // Set and match exit animation duration.
-  }, [remove]);
+  }, [autoClose, startTimer]);
 
   // Toast actions...
   const actionButtons = useMemo(() => {
@@ -113,8 +135,8 @@ const Toast = ({
         actions.length === 1
           ? `action-btnA__${type}`
           : idx === 0
-          ? `action-btnB__${type}`
-          : `action-btnA__${type}`;
+            ? `action-btnB__${type}`
+            : `action-btnA__${type}`;
 
       const classNameStr = `action-btn ${btnType} ${a.className || ""}`.trim();
       return (
@@ -135,9 +157,8 @@ const Toast = ({
 
   // Start auto-close timer.
   useEffect(() => {
-    if (duration !== 0 && autoClose) {
-      startTimer();
-    }
+    startTimer();
+
     // pause/resume when window focus changes.
     const handleBlur = () => pauseOnFocusLoss && pauseTimer();
     const handleFocus = () => pauseOnFocusLoss && resumeTimer();
@@ -148,13 +169,15 @@ const Toast = ({
     }
 
     return () => {
-      clearInterval(intervalRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
       if (pauseOnFocusLoss) {
         window.removeEventListener("blur", handleBlur);
         window.removeEventListener("focus", handleFocus);
       }
     };
-  }, [duration, autoClose, pauseOnFocusLoss]);
+  }, []);
 
   return (
     <>
@@ -218,6 +241,7 @@ const Toast = ({
               className={`toast-progress ${type}`}
               style={{
                 width: `${progressWidth}%`,
+                transition: isPausedState ? "none" : "width 50ms linear",
               }}
             ></div>
           </div>

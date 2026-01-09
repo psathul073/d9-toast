@@ -224,6 +224,7 @@ const Icons = ({ name, className = " " }) => {
       </svg>
     ),
   };
+  
   return icons[name] ?? null;
 };
 

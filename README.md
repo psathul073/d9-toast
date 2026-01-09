@@ -28,7 +28,7 @@ A **lightweight, fully typed, customizable toast notification library** for Reac
 
 ## 📺 Demo
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-CodeSandbox-000000?style=for-the-badge\&logo=codesandbox\&logoColor=white)](https://codesandbox.io/embed/cqkyzm?view=preview)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-CodeSandbox-000000?style=for-the-badge\&logo=codesandbox\&logoColor=white)](https://psathul073.github.io/d9-toast-docs/docs/examples/basic)
 
 ---
 
@@ -52,6 +52,8 @@ yarn add d9-toast
 
 ```jsx
 import { ToastProvider } from "d9-toast";
+import "d9-toast/toast.css"; // Import the default styles once in your app.
+
 
 export default function Root() {
   return (
@@ -169,33 +171,34 @@ audio?: {
 
 ### Example
 
-```jsx
-const { sounds, showToast } = useToast();
+  ```jsx
+  const { sounds, showToast } = useToast();
 
-showToast({
-  message: "Message sent",
-  type: "success",
-  audio: {
-    enabled: true,
-    volume: 0.8,
-    cooldown: 500,
-    audioFile: sounds.success,
-  },
-});
-```
+  showToast({
+    message: "Message sent",
+    type: "success",
+    audio: {
+      enabled: true,
+      volume: 0.8,
+      cooldown: 500,
+      audioFile: sounds.success,
+    },
+  });
+  ```
 
-✔ Prevents sound spam
-✔ Per-toast control
-✔ Custom audio file supported
+  ✔ Prevents sound spam
+  ✔ Per-toast control
+  ✔ Custom audio file supported
 
 ---
 
 ## 🎨 Styling
 
-### Default Styles
+## Styles (Required)
+Import the default styles once in your app:
 
 ```js
-import "d9-toast/dist/toast.css";
+import "d9-toast/toast.css";
 ```
 
 ### Tailwind / Custom Styling

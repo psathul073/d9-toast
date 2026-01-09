@@ -7,8 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import Toast from "./Toast";
-import "./toast.css";
+import Toast from "./Toast.js";
 
 const sounds = {
   default:
@@ -88,13 +87,8 @@ export const ToastProvider = ({ children }) => {
           audioFile: audio.audioFile,
           volume: audio.volume,
         });
-      }
-
-      const shouldAutoClose = toast.autoClose !== false && toast.duration !== 0;
-
-      if (shouldAutoClose) {
-        setTimeout(() => removeToast(newToast.id), toast.duration || 5000);
-      }
+      };
+      
       return newToast?.id;
     },
     [playAudio]

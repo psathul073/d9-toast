@@ -1,8 +1,8 @@
 {
   "name": "d9-toast",
-  "version": "1.4.30",
+  "version": "1.5.35",
   "description": "Customizable toast notifications for React",
-  "homepage": "https://codesandbox.io/embed/cqkyzm?view=preview",
+  "homepage": "https://psathul073.github.io/d9-toast-docs/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/psathul073/d9-toast.git"
@@ -16,6 +16,13 @@
   },
   "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/d9-toast.d.ts"
+    },
+    "./toast.css": "./dist/toast.css"
+  },
   "files": [
     "dist"
   ],

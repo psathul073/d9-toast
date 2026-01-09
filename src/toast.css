@@ -143,14 +143,14 @@
   --loading-color: #6900ca;
   --loading-bg: rgba(106, 31, 176, 0.1);
 
-  --border-color: #e5e7eb;
+  --border-color: lch(91.6% 2.18 271.57);
 
   /* background-color: #ffffff;
   color: #1e2939; */
 }
 
 .dark {
-   --primary-bg: #060606;
+  --primary-bg: #060606;
   --primary-color: #ffffff;
 
   --success-color: #00df5f;
@@ -168,7 +168,7 @@
   --loading-color: #c586ff;
   --loading-bg: rgba(106, 31, 176, 0.1);
 
-  --border-color: #111827;
+  --border-color: rgb(17, 24, 39);
 
   /* background-color: #1e2939;
   color: #ffffff; */
@@ -321,7 +321,7 @@
 
 .progress-container {
   position: absolute;
-  bottom: 0;
+  bottom: -1px;
   left: 0;
   width: 100%;
   height: 0.25rem;
