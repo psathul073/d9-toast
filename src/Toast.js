@@ -9,16 +9,32 @@ import React, {
 } from "react";
 import Icons from "./Icons.js";
 
+const ENTER_ANIMATIONS = {
+  top: "upToDown",
+  bottom: "downToUp",
+  center: "centerEnter",
+};
+
+const EXIT_ANIMATIONS = {
+  bottom: "upToDownExit",
+  top: "downToUpExit",
+  center: "centerExit",
+};
+
 const Toast = ({
   id,
   message,
+  stackIndex = 0,
   type = "success",
   theme = "light",
   position = "top-right",
   className = "",
+  rtl = false,
+  expand = "hover",
   duration = 4000,
   actions = [],
   remove,
+  isStackHovered,
   progress = true,
   autoClose = true,
   closable = false,
@@ -26,37 +42,35 @@ const Toast = ({
   pauseOnHover = true,
   pauseOnFocusLoss = true,
 }) => {
-  const [progressWidth, setProgressWidth] = useState(100);
   const [exiting, setExiting] = useState(false);
-  const [isPausedState, setIsPausedState] = useState(false); // Only for UI/State checks..
-  const intervalRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
   const timeoutRef = useRef(null);
-  const initialDuration = useRef(duration);
-  const start = useRef(Date.now());
-  const remaining = useRef(duration);
-  const isPausedRef = useRef(false); // Use for internal logic to avoid loops..
+
+  const shouldExpand = expand === "hover" ? isStackHovered : expand;
+  const ariaRole = type === "error" ? "alert" : "status";
 
   // Styles [Animation]
   const { enterAnim, exitAnim } = useMemo(() => {
     // entry animation [based on position]
-    const baseEnter =
-      (position.startsWith("top") && "upToDown") ||
-      (position.startsWith("bottom") && "downToUp") ||
-      (position.endsWith("top") && "upToDown") ||
-      (position.endsWith("bottom") && "downToUp") ||
-      "centerEnter";
+    const isTop = position.includes("top");
+    const isBottom = position.includes("bottom");
+
+    const baseEnter = isTop
+      ? ENTER_ANIMATIONS.top
+      : isBottom
+        ? ENTER_ANIMATIONS.bottom
+        : ENTER_ANIMATIONS.center;
 
     // exit animation [reverse direction]
-    const baseExit =
-      (position.startsWith("top") && "downToUpExit") ||
-      (position.startsWith("bottom") && "upToDownExit") ||
-      (position.endsWith("top") && "downToUpExit") ||
-      (position.endsWith("bottom") && "upToDownExit") ||
-      "centerExit";
+    const baseExit = isTop
+      ? EXIT_ANIMATIONS.top
+      : isBottom
+        ? EXIT_ANIMATIONS.bottom
+        : EXIT_ANIMATIONS.center;
 
     return {
-      enterAnim: `${baseEnter} 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`,
-      exitAnim: `${baseExit} 0.25s cubic-bezier(0.39, 0.575, 0.565, 1) forwards`,
+      enterAnim: `${baseEnter} 750ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
+      exitAnim: `${baseExit} 750ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
     };
   }, [position]);
 
@@ -64,66 +78,20 @@ const Toast = ({
 
   // for exit
   const triggerExit = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
+    if (exiting) return;
     setExiting(true);
-
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
     timeoutRef.current = setTimeout(() => remove(), 250); // Set and match exit animation duration.
-  }, [remove]);
+  }, [remove, exiting]);
 
-  // for start
-  const startTimer = useCallback(() => {
-    if (!autoClose || initialDuration.current === 0) return;
-
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    // Update the start point every time we (re)start the interval.
-    start.current = Date.now();
-
-    intervalRef.current = setInterval(() => {
-      // If we are paused, we don't do anything, but the interval stays alive.
-      if (isPausedRef.current) return;
-
-      // time to passed...
-      const elapsed = Date.now() - start.current;
-      // time to left...
-      const timeToLeft = remaining.current - elapsed;
-      // set shrink bar...
-      const percent = (timeToLeft / initialDuration.current) * 100;
-      setProgressWidth(Math.max(0, percent));
-
-      if (timeToLeft <= 0) {
-        // stop timer...
-        clearInterval(intervalRef.current);
-        // remove toast.
-        triggerExit();
-      }
-    }, 50); // Add 50ms is smoother for progress bars..
-  }, [autoClose, triggerExit]);
-
-  // for pause
-  const pauseTimer = useCallback(() => {
-    if (!autoClose || isPausedRef.current) return;
-
-    // Calculate exactly what was left at the moment of pause..
-    const elapsed = Date.now() - start.current;
-    remaining.current = remaining.current - elapsed;
-
-    isPausedRef.current = true;
-    setIsPausedState(true);
-
-    if (intervalRef.current) clearInterval(intervalRef.current);
+  // for pause.
+  const handlePause = useCallback(() => {
+    if (autoClose) setIsPaused(true);
   }, [autoClose]);
 
-  // for resume
-  const resumeTimer = useCallback(() => {
-    if (!autoClose || !isPausedRef.current) return;
-    isPausedRef.current = false;
-    setIsPausedState(false);
-    startTimer();
-  }, [autoClose, startTimer]);
+  // for resume.
+  const handleResume = useCallback(() => {
+    if (autoClose) setIsPaused(false);
+  }, [autoClose]);
 
   // Toast actions...
   const actionButtons = useMemo(() => {
@@ -138,7 +106,9 @@ const Toast = ({
             ? `action-btnB__${type}`
             : `action-btnA__${type}`;
 
-      const classNameStr = `action-btn ${btnType} ${a.className || ""}`.trim();
+      const classNameStr = `action-btn ${theme === "colored" ? "" : btnType} ${
+        a.className || ""
+      }`.trim();
       return (
         <button
           aria-label={`Action ${a.text}`}
@@ -150,18 +120,18 @@ const Toast = ({
         </button>
       );
     });
-  }, [actions, type, id]);
+  }, [actions, type, id, theme]);
 
-  const handleMouseEnter = pauseOnHover ? pauseTimer : undefined;
-  const handleMouseLeave = pauseOnHover ? resumeTimer : undefined;
+  const handleMouseEnter = pauseOnHover ? handlePause : undefined;
+  const handleMouseLeave = pauseOnHover ? handleResume : undefined;
 
   // Start auto-close timer.
   useEffect(() => {
-    startTimer();
+    // startTimer();
 
     // pause/resume when window focus changes.
-    const handleBlur = () => pauseOnFocusLoss && pauseTimer();
-    const handleFocus = () => pauseOnFocusLoss && resumeTimer();
+    const handleBlur = () => pauseOnFocusLoss && handlePause();
+    const handleFocus = () => pauseOnFocusLoss && handleResume();
 
     if (pauseOnFocusLoss) {
       window.addEventListener("blur", handleBlur);
@@ -169,7 +139,6 @@ const Toast = ({
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
       if (pauseOnFocusLoss) {
@@ -177,13 +146,28 @@ const Toast = ({
         window.removeEventListener("focus", handleFocus);
       }
     };
-  }, []);
+  }, [pauseOnFocusLoss, handlePause, handleResume]);
 
   return (
-    <>
+    <div
+      className={`toastWrapper ${shouldExpand ? "expanded" : "stacked"}`}
+      dir={rtl ? "rtl" : "ltr"}
+      style={{
+        bottom: position.includes("bottom") ? "0%" : "",
+        // zIndex: shouldExpand ? 9999 : 10 - stackIndex, // Dynamic Z-index for stacking...
+      }}
+    >
       <div
+        data-stack={shouldExpand ? 0 : stackIndex}
+        role={ariaRole}
+        aria-live={ariaRole === "alert" ? "assertive" : "polite"}
+        aria-atomic="true"
+        tabIndex={0}
+        aria-hidden={!shouldExpand && stackIndex > 0}
         style={{ animation: exiting ? exitAnim : enterAnim }}
-        className={`toast ${theme === "colored" ? type : theme} ${className}`}
+        className={` d9-toast toast ${
+          theme === "colored" ? type : theme
+        } ${className}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -191,7 +175,7 @@ const Toast = ({
         {title && (
           <div className={`toastHeader ${type}`}>
             <div className="title">
-              <Icons name={type} /> <p>{type.toUpperCase()}</p>
+              <Icons name={type || "success"} /> <p>{type.toUpperCase()}</p>
             </div>
 
             {closable && (
@@ -208,23 +192,21 @@ const Toast = ({
 
         {/* Message */}
         {typeof message === "string" ? (
-          <>
-            <div className="toast-message__container">
-              <div className="toast-message">
-                {!title && <Icons name={type} className={type} />}
-                <p>{message}</p>
-              </div>
-              {closable && !title && (
-                <button
-                  className="close-button"
-                  aria-label="Close button"
-                  onClick={() => triggerExit()}
-                >
-                  <Icons name={"X"} />
-                </button>
-              )}
+          <div className="toast-message__container">
+            <div className="toast-message">
+              {!title && <Icons name={type || "success"} className={type} />}
+              <p>{message}</p>
             </div>
-          </>
+            {closable && !title && (
+              <button
+                className="close-button"
+                aria-label="Close button"
+                onClick={() => triggerExit()}
+              >
+                <Icons name={"X"} />
+              </button>
+            )}
+          </div>
         ) : (
           <div style={{ padding: "4px" }}>{message}</div>
         )}
@@ -239,15 +221,17 @@ const Toast = ({
           <div className={`progress-container ${type}`}>
             <div
               className={`toast-progress ${type}`}
+              onAnimationEnd={triggerExit}
               style={{
-                width: `${progressWidth}%`,
-                transition: isPausedState ? "none" : "width 50ms linear",
+                animationDuration: `${duration}ms`,
+                animationPlayState: isPaused ? "paused" : "running",
+                animationFillMode: rtl ? "backwards" : "forwards",
               }}
             ></div>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

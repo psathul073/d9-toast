@@ -1,14 +1,13 @@
 "use client";
 
 import React, {
-  createContext,
   useCallback,
-  useContext,
   useRef,
   useState,
 } from "react";
 import Toast from "./Toast.js";
 
+// Audio.
 const sounds = {
   default:
     "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/default.mp3",
@@ -21,9 +20,7 @@ const sounds = {
   info: "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/info.mp3",
 };
 
-const ToastContext = createContext();
-
-export const useToast = () => useContext(ToastContext);
+const audioCache = {}; // Cache for audio objects..
 
 const audioSettings = {
   audioFile: sounds.default,
@@ -32,16 +29,111 @@ const audioSettings = {
   cooldown: 500,
 };
 
+// INTERNAL reference...
+let toastRef = null;
+
+// For public toast API.
+const warn = () => {
+  console.warn("ToastProvider is not mounted");
+  return undefined;
+};
+
+export const toast = {
+  sounds: sounds,
+
+  success: (msg, opts = {}) =>
+    toastRef
+      ? toastRef.showToast({
+          type: "success",
+          message: msg ?? "No messages",
+          ...opts,
+        })
+      : warn(),
+
+  error: (msg, opts = {}) =>
+    toastRef
+      ? toastRef.showToast({
+          type: "error",
+          message: msg ?? "No messages",
+          ...opts,
+        })
+      : warn(),
+
+  info: (msg, opts = {}) =>
+    toastRef?.showToast({
+      type: "info",
+      message: msg ?? "No messages",
+      ...opts,
+    }),
+
+  warning: (msg, opts = {}) =>
+    toastRef
+      ? toastRef.showToast({
+          type: "warning",
+          message: msg ?? "No messages",
+          ...opts,
+        })
+      : warn(),
+
+  promise: (promise, messages, opts = {}) => {
+    const defaultMessages = {
+      loading: "Loading...",
+      success: "Success",
+      error: "Error",
+    };
+
+    const finalMessages =
+      messages && typeof messages === "object" ? messages : defaultMessages;
+    return toastRef
+      ? toastRef.promiseToast(promise, finalMessages, opts)
+      : warn();
+  },
+
+  dismiss: (id) => toastRef?.removeToast(id),
+
+  dismissAll: () => toastRef?.removeToastAll(),
+};
+
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const [isHovering, setIsHovering] = useState(false);
   const lastSoundTimeRef = useRef(0);
+  const hoverTimeoutRef = useRef(null);
+
+  const handleMouseEnter = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovering(true);
+    }, 50);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovering(false);
+    }, 50);
+  }, []);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   // Audio player..
   const playAudio = useCallback(({ audioFile, volume = 0.6 }) => {
     if (!audioFile || typeof window === "undefined") return;
 
     try {
-      const audio = new Audio(audioFile);
+      // Check cache..
+      let audio = audioCache[audioFile];
+      if (!audio) {
+        audio = new Audio(audioFile);
+        audioCache[audioFile] = audio;
+      }
+      // Reset time to allow rapid replay...
+      audio.currentTime = 0;
       audio.volume = volume;
       audio.play().catch(() => {});
     } catch (err) {
@@ -68,7 +160,8 @@ export const ToastProvider = ({ children }) => {
           cooldown: toast.audio?.cooldown ?? audioSettings.cooldown, // Custom cooldown im ms.
         },
       };
-      setToasts((prev) => [...prev, newToast]);
+      // Limit to last 10 toasts to prevent memory overflow...
+      setToasts((prev) => [...prev, newToast].slice(-10));
 
       const { audio, type } = newToast;
       const now = Date.now();
@@ -87,8 +180,8 @@ export const ToastProvider = ({ children }) => {
           audioFile: audio.audioFile,
           volume: audio.volume,
         });
-      };
-      
+      }
+
       return newToast?.id;
     },
     [playAudio]
@@ -101,6 +194,61 @@ export const ToastProvider = ({ children }) => {
       return newToasts;
     });
   }, []);
+
+  // Update toast
+  const updateToast = useCallback((id, updates) => {
+    setToasts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+    );
+  }, []);
+
+  // Promise toast..
+  const promiseToast = useCallback(
+    (promiseOrFn, messages, options = {}) => {
+      const id = showToast({
+        type: "loading",
+        message: messages.loading,
+        autoClose: false,
+        ...options,
+      });
+
+      const promise =
+        typeof promiseOrFn === "function" ? promiseOrFn() : promiseOrFn;
+
+      Promise.resolve(promise)
+        .then((res) => {
+          updateToast(id, {
+            type: "success",
+            message:
+              typeof messages.success === "function"
+                ? messages.success(res)
+                : messages.success,
+            closable: true,
+            autoClose: true, // Re-enable autoClose for success...
+            duration: 3000, // Reset duration..
+          });
+
+          return res;
+        })
+        .catch((err) => {
+          updateToast(id, {
+            type: "error",
+            message:
+              typeof messages.error === "function"
+                ? messages.error(err)
+                : messages.error,
+            closable: true,
+            autoClose: true,
+            duration: 3000,
+          });
+
+          throw err;
+        });
+
+      return promise;
+    },
+    [showToast, updateToast]
+  );
 
   // Remove all toast.
   const removeToastAll = useCallback(() => {
@@ -117,28 +265,44 @@ export const ToastProvider = ({ children }) => {
     return acc;
   }, {});
 
+  // Connect context >>> toast API (ONCE).
+  useEffect(() => {
+    toastRef = {
+      showToast,
+      removeToast,
+      removeToastAll,
+      promiseToast,
+    };
+
+    return () => {
+      toastRef = null;
+    };
+  }, [showToast, removeToast, removeToastAll, promiseToast]);
+
   return (
-    <ToastContext.Provider
-      value={{
-        sounds,
-        showToast,
-        removeToast,
-        removeToastAll,
-      }}
-    >
+    <>
       {children}
       {/* Render separate containers for each position */}
       {Object.entries(groupedToasts).map(([position, positionToasts]) => (
-        <div key={position} className={`toastContainer ${position}`}>
-          {positionToasts.map((toast) => (
-            <Toast
-              key={toast.id}
-              {...toast}
-              remove={() => removeToast(toast.id)}
-            />
-          ))}
+        <div
+          key={position}
+          className={`toastViewport ${position}`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="toastContainer">
+            {positionToasts.slice(0, 3).map((toast, index) => (
+              <Toast
+                key={toast.id}
+                {...toast}
+                stackIndex={index}
+                isStackHovered={isHovering}
+                remove={() => removeToast(toast.id)}
+              />
+            ))}
+          </div>
         </div>
       ))}
-    </ToastContext.Provider>
+    </>
   );
 };
