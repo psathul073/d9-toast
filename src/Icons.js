@@ -231,6 +231,7 @@ const Icons = ({ name, className = " " }) => {
       </svg>
     ),
   };
+  
   return icons[name] ?? null;
 };
 export default memo(Icons);

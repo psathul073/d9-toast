@@ -31,7 +31,7 @@ const Toast = ({
   className = "",
   rtl = false,
   expand = "hover",
-  duration = 4000,
+  duration = 3000,
   actions = [],
   remove,
   isStackHovered,
@@ -106,7 +106,7 @@ const Toast = ({
             ? `action-btnB__${type}`
             : `action-btnA__${type}`;
 
-      const classNameStr = `action-btn ${theme === "colored" ? "" : btnType} ${
+      const classNameStr = `action-btn ${theme === "colored" ? theme : btnType} ${
         a.className || ""
       }`.trim();
       return (
