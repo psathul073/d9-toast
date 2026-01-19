@@ -52,7 +52,7 @@ toastBase.sounds = sounds;
 
 toastBase.success = (msg, opts = {}) =>
   toastRef
-    ? toastRef.showToast({ type: "success", message: msg, progress: true, ...opts })
+    ? toastRef.showToast({ type: "success", message: msg, ...opts })
     : warn();
 
 toastBase.error = (msg, opts = {}) =>
