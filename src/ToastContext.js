@@ -35,65 +35,59 @@ let toastRef = null;
 
 // For public toast API.
 const warn = () => {
-  console.warn("ToastProvider is not mounted");
+  console.warn(
+    "D9-Toast: ToastProvider is not mounted. Ensure it wraps your app.",
+  );
   return undefined;
 };
 
-export const toast = {
-  sounds: sounds,
-
-  success: (msg, opts = {}) =>
-    toastRef
-      ? toastRef.showToast({
-          type: "success",
-          message: msg ?? "No messages",
-          ...opts,
-        })
-      : warn(),
-
-  error: (msg, opts = {}) =>
-    toastRef
-      ? toastRef.showToast({
-          type: "error",
-          message: msg ?? "No messages",
-          ...opts,
-        })
-      : warn(),
-
-  info: (msg, opts = {}) =>
-    toastRef?.showToast({
-      type: "info",
-      message: msg ?? "No messages",
-      ...opts,
-    }),
-
-  warning: (msg, opts = {}) =>
-    toastRef
-      ? toastRef.showToast({
-          type: "warning",
-          message: msg ?? "No messages",
-          ...opts,
-        })
-      : warn(),
-
-  promise: (promise, messages, opts = {}) => {
-    const defaultMessages = {
-      loading: "Loading...",
-      success: "Success",
-      error: "Error",
-    };
-
-    const finalMessages =
-      messages && typeof messages === "object" ? messages : defaultMessages;
-    return toastRef
-      ? toastRef.promiseToast(promise, finalMessages, opts)
-      : warn();
-  },
-
-  dismiss: (id) => toastRef?.removeToast(id),
-
-  dismissAll: () => toastRef?.removeToastAll(),
+/** * CALLABLE API CORE */
+const toastBase = (msg, opts = {}) => {
+  return toastRef
+    ? toastRef.showToast({ type: "default", title: false, progress: false, duration: 3000, message: msg, ...opts })
+    : warn();
 };
+
+toastBase.sounds = sounds;
+
+toastBase.success = (msg, opts = {}) =>
+  toastRef
+    ? toastRef.showToast({ type: "success", message: msg, progress: true, ...opts })
+    : warn();
+
+toastBase.error = (msg, opts = {}) =>
+  toastRef
+    ? toastRef.showToast({ type: "error", message: msg, ...opts })
+    : warn();
+
+toastBase.info = (msg, opts = {}) =>
+  toastRef
+    ? toastRef.showToast({ type: "info", message: msg, ...opts })
+    : warn();
+
+toastBase.warning = (msg, opts = {}) =>
+  toastRef
+    ? toastRef.showToast({ type: "warning", message: msg, ...opts })
+    : warn();
+
+toastBase.promise = (promise, messages, opts = {}) => {
+  const defaultMessages = {
+    loading: "Loading...",
+    success: "Success",
+    error: "Error",
+  };
+  const finalMessages =
+    messages && typeof messages === "object" ? messages : defaultMessages;
+  return toastRef
+    ? toastRef.promiseToast(promise, finalMessages, opts)
+    : warn();
+};
+
+toastBase.dismiss = (id) => toastRef?.removeToast(id);
+toastBase.dismissAll = () => toastRef?.removeToastAll();
+
+export const toast = toastBase;
+
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
@@ -185,7 +179,7 @@ export const ToastProvider = ({ children }) => {
 
       return newToast?.id;
     },
-    [playAudio]
+    [playAudio],
   );
 
   // Remove toast
@@ -199,7 +193,7 @@ export const ToastProvider = ({ children }) => {
   // Update toast
   const updateToast = useCallback((id, updates) => {
     setToasts((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     );
   }, []);
 
@@ -248,7 +242,7 @@ export const ToastProvider = ({ children }) => {
 
       return promise;
     },
-    [showToast, updateToast]
+    [showToast, updateToast],
   );
 
   // Remove all toast.

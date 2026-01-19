@@ -31,7 +31,7 @@ const Toast = ({
   className = "",
   rtl = false,
   expand = "hover",
-  duration = 3000,
+  duration = 4000,
   actions = [],
   remove,
   isStackHovered,
@@ -106,9 +106,10 @@ const Toast = ({
             ? `action-btnB__${type}`
             : `action-btnA__${type}`;
 
-      const classNameStr = `action-btn ${theme === "colored" ? theme : btnType} ${
-        a.className || ""
-      }`.trim();
+      const classNameStr =
+        `action-btn ${theme === "colored" ? theme : btnType} ${
+          a.className || ""
+        }`.trim();
       return (
         <button
           aria-label={`Action ${a.text}`}
@@ -127,8 +128,6 @@ const Toast = ({
 
   // Start auto-close timer.
   useEffect(() => {
-    // startTimer();
-
     // pause/resume when window focus changes.
     const handleBlur = () => pauseOnFocusLoss && handlePause();
     const handleFocus = () => pauseOnFocusLoss && handleResume();
@@ -154,7 +153,6 @@ const Toast = ({
       dir={rtl ? "rtl" : "ltr"}
       style={{
         bottom: position.includes("bottom") ? "0%" : "",
-        // zIndex: shouldExpand ? 9999 : 10 - stackIndex, // Dynamic Z-index for stacking...
       }}
     >
       <div
@@ -175,7 +173,8 @@ const Toast = ({
         {title && (
           <div className={`toastHeader ${type}`}>
             <div className="title">
-              <Icons name={type || "success"} /> <p>{type.toUpperCase()}</p>
+              {type !== "default" && <Icons name={type || "success"} />}{" "}
+              <p>{type.toUpperCase()}</p>
             </div>
 
             {closable && (
@@ -194,8 +193,10 @@ const Toast = ({
         {typeof message === "string" ? (
           <div className="toast-message__container">
             <div className="toast-message">
-              {!title && <Icons name={type || "success"} className={type} />}
-              <p>{message}</p>
+              {!title && type !== "default" && (
+                <Icons name={type || "success"} className={type} />
+              )}
+              <p>{message || "No messages"}</p>
             </div>
             {closable && !title && (
               <button
@@ -208,7 +209,7 @@ const Toast = ({
             )}
           </div>
         ) : (
-          <div style={{ padding: "4px" }}>{message}</div>
+          <div style={{ padding: "4px" }}>{message || "No messages"}</div>
         )}
 
         {/* Actions */}
@@ -217,15 +218,21 @@ const Toast = ({
         )}
 
         {/* Progress Bar */}
-        {progress && duration !== 0 && autoClose && (
-          <div className={`progress-container ${type}`}>
+        {duration !== 0 && autoClose && (
+          <div
+            className={`progress-container ${type}`}
+            style={{
+              opacity: progress ? 1 : 0,
+              height: progress ? "4px" : "0px",
+            }}
+          >
             <div
               className={`toast-progress ${type}`}
               onAnimationEnd={triggerExit}
               style={{
                 animationDuration: `${duration}ms`,
                 animationPlayState: isPaused ? "paused" : "running",
-                animationFillMode: rtl ? "backwards" : "forwards",
+                transformOrigin: rtl ? "right" : "left",
               }}
             ></div>
           </div>

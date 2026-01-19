@@ -10,6 +10,7 @@ declare module "d9-toast" {
    * Controls icon, color, and default sound.
    */
   export type ToastType =
+    | "default"
     | "success"
     | "error"
     | "info"
@@ -178,16 +179,18 @@ declare module "d9-toast" {
   }
 
   /* =========================================
-   * Toast API (PUBLIC)
-   * ========================================= */
+     * Toast API (PUBLIC)
+     * ========================================= */
 
-  /**
-   * Public toast API used to trigger notifications.
-   */
-  export const toast: {
+  export interface ToastCallable {
     /**
-     * Default sound URLs used by the toast system.
-     */
+    * Show a default notification.
+    * Defaults: type="default", progress=false, duration=3000
+    * Usage: toast("Simple message")
+    */
+    (message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Default sound URLs */
     sounds: {
       default: string;
       success: string;
@@ -196,73 +199,43 @@ declare module "d9-toast" {
       info: string;
     };
 
-    /**
-     * Show a success toast.
-     */
-    success(
-      message: string | React.ReactNode,
-      options?: ToastOptions
-    ): string | undefined;
+    /** Show a success toast */
+    success(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show an error toast */
+    error(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show an info toast */
+    info(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show a warning toast */
+    warning(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
 
     /**
-     * Show an error toast.
+     * Wraps a promise and updates the toast automatically.
      */
-    error(
-      message: string | React.ReactNode,
-      options?: ToastOptions
-    ): string | undefined;
-
-    /**
-     * Show an info toast.
-     */
-    info(
-      message: string | React.ReactNode,
-      options?: ToastOptions
-    ): string | undefined;
-
-    /**
-     * Show a warning toast.
-     */
-    warning(
-      message: string | React.ReactNode,
-      options?: ToastOptions
-    ): string | undefined;
-
-    /**
-        * Wraps a promise and updates the toast automatically.
-        */
     promise<T>(
       promise: Promise<T> | (() => Promise<T>),
       messages: {
-        /**
-         * Message shown while the promise is pending.
-         */
         loading: string | React.ReactNode;
-
-        /**
-         * Message shown when the promise resolves.
-         */
         success: string | React.ReactNode | ((value: T) => string | React.ReactNode);
-
-        /**
-         * Message shown when the promise rejects.
-         */
         error: string | React.ReactNode | ((error: any) => string | React.ReactNode);
       },
       options?: ToastOptions
     ): Promise<T>;
 
-    /**
-     * Dismiss a toast by its id.
-     */
+    /** Dismiss a specific toast */
     dismiss(id: string): void;
 
-    /**
-     * Dismiss all active toasts.
-     */
+    /** Dismiss all toasts */
     dismissAll(): void;
-  };
+  }
 
+  /**
+   * Public toast API used to trigger notifications.
+   * Can be called directly as a function or via type-specific methods.
+   */
+  export const toast: ToastCallable;
   /* =========================================
    * Provider
    * ========================================= */

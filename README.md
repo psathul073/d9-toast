@@ -75,7 +75,11 @@ export default function Root() {
 ```jsx
 import { toast } from "d9-toast";
 
-toast.success("Saved successfully!");
+// You can call it directly!
+const notify = () => toast("Simple notification");
+
+// Or use specific types
+const success = () => toast.success("Saved!");
 ```
 
 ✅ Works inside
@@ -97,6 +101,7 @@ import { toast } from "d9-toast";
 
 | Method                                      | Description         |
 | ------------------------------------------- | ------------------- |
+| `toast(msg, options)`                       | Show default toast  |
 | `toast.success(msg, options)`               | Show success toast  |
 | `toast.error(msg, options)`                 | Show error toast    |
 | `toast.info(msg, options)`                  | Show info toast     |
