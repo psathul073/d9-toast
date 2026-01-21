@@ -9,16 +9,14 @@ import React, {
 } from "react";
 import Icons from "./Icons.js";
 
-const ENTER_ANIMATIONS = {
-  top: "upToDown",
-  bottom: "downToUp",
-  center: "centerEnter",
-};
-
-const EXIT_ANIMATIONS = {
-  bottom: "upToDownExit",
-  top: "downToUpExit",
-  center: "centerExit",
+// For animation direction.
+const getAnimationDirection = (position) => {
+  if (position.startsWith("top")) return "top";
+  if (position.startsWith("bottom")) return "bottom";
+  if (position === "center") return "center";
+  if (position === "center-top") return "top";
+  if (position === "center-bottom") return "bottom";
+  return "top";
 };
 
 const Toast = ({
@@ -42,46 +40,31 @@ const Toast = ({
   pauseOnHover = true,
   pauseOnFocusLoss = true,
 }) => {
-  const [exiting, setExiting] = useState(false);
+  // const [exiting, setExiting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [phase, setPhase] = useState("enter");
   const timeoutRef = useRef(null);
+
+  // For SSR Safety Guard.
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const shouldExpand = expand === "hover" ? isStackHovered : expand;
   const ariaRole = type === "error" ? "alert" : "status";
-
-  // Styles [Animation]
-  const { enterAnim, exitAnim } = useMemo(() => {
-    // entry animation [based on position]
-    const isTop = position.includes("top");
-    const isBottom = position.includes("bottom");
-
-    const baseEnter = isTop
-      ? ENTER_ANIMATIONS.top
-      : isBottom
-        ? ENTER_ANIMATIONS.bottom
-        : ENTER_ANIMATIONS.center;
-
-    // exit animation [reverse direction]
-    const baseExit = isTop
-      ? EXIT_ANIMATIONS.top
-      : isBottom
-        ? EXIT_ANIMATIONS.bottom
-        : EXIT_ANIMATIONS.center;
-
-    return {
-      enterAnim: `${baseEnter} 450ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
-      exitAnim: `${baseExit}  300ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
-    };
-  }, [position]);
+  const direction = useMemo(() => getAnimationDirection(position), [position]);
+  const animationClass =
+    phase === "exit" ? `toast--exit-${direction}` : `toast--enter-${direction}`;
 
   // --- Helpers Fun ---
 
   // for exit
   const triggerExit = useCallback(() => {
-    if (exiting) return;
-    setExiting(true);
-    timeoutRef.current = setTimeout(() => remove(), 250); // Set and match exit animation duration.
-  }, [remove, exiting]);
+    if (phase === "exit") return;
+    setPhase("exit");
+    timeoutRef.current = setTimeout(() => remove(), 300); // Set and match exit animation duration.
+  }, [remove, phase]);
 
   // for pause.
   const handlePause = useCallback(() => {
@@ -127,6 +110,8 @@ const Toast = ({
 
   // Start auto-close timer.
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     // pause/resume when window focus changes.
     const handleBlur = () => pauseOnFocusLoss && handlePause();
     const handleFocus = () => pauseOnFocusLoss && handleResume();
@@ -146,12 +131,15 @@ const Toast = ({
     };
   }, [pauseOnFocusLoss, handlePause, handleResume]);
 
+  if (!isMounted) return null;
+
   return (
     <div
       className={`toastWrapper ${shouldExpand ? "expanded" : "stacked"}`}
       dir={rtl ? "rtl" : "ltr"}
       style={{
         bottom: position.includes("bottom") ? "0%" : "",
+        pointerEvents: "none",
       }}
     >
       <div
@@ -161,9 +149,10 @@ const Toast = ({
         aria-atomic="true"
         tabIndex={0}
         aria-hidden={!shouldExpand && stackIndex > 0}
-        style={{ animation: exiting ? exitAnim : enterAnim }}
-        className={` d9-toast toast ${theme === "colored" ? type : theme
-          } ${className}`}
+        style={{
+          pointerEvents: phase === "exit" ? "none" : "auto",
+        }}
+        className={`d9-toast toast ${animationClass} ${theme === "colored" ? type : theme} ${className}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

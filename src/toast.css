@@ -23,9 +23,6 @@
   --loading-bg: #8736ca;
 
   --border-color: #ffffff20;
-
-  --line-height-base: 1.5;
-  --font-size-base: 14px;
 }
 
 /* Theme colors */
@@ -146,8 +143,9 @@
 }
 .toastWrapper {
   width: 100%;
- transition: transform 400ms cubic-bezier(0.165, 0.84, 0.44, 1), 
-              margin 400ms cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition:
+    transform 300ms cubic-bezier(0.165, 0.84, 0.44, 1),
+    margin 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
   pointer-events: none;
 }
 
@@ -166,10 +164,12 @@
 
 /* Toast */
 .toast {
+  box-sizing: border-box;
   position: relative;
   top: 0;
   min-width: 250px;
   max-width: 375px;
+  min-height: 48px;
   max-height: 425px;
   display: flex;
   flex-direction: column;
@@ -178,8 +178,8 @@
   margin: 8px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-base);
+  font-size: 14px;
+  line-height: 1.25rem;
   text-align: start;
   font-family:
     system-ui,
@@ -193,32 +193,41 @@
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
-  will-change: transform, opacity;
   background-color: var(--primary-bg);
   color: var(--primary-color);
   border: 1px solid var(--border-color);
-  transition:
-    transform 650ms cubic-bezier(0.165, 0.84, 0.44, 1),
-    opacity 300ms ease;
+  transition: all 300ms ease;
+  transform-style: preserve-3d;
+  -webkit-font-smoothing: antialiased;
+  will-change: transform, opacity;
+  isolation: isolate;
+  overflow: hidden;
   pointer-events: auto;
 }
 
 .toastWrapper.stacked .toast[data-stack="0"] {
   transform: translateY(0) scale(1);
   opacity: 1;
-  z-index: 3;
+  z-index: 50 !important;
 }
 
 .toastWrapper.stacked .toast[data-stack="1"] {
-  transform: translateY(15px) scale(0.96);
+  transform: translateY(12px) scale(0.96) translateZ(0);
   opacity: 0.75;
   z-index: 2;
 }
 
 .toastWrapper.stacked .toast[data-stack="2"] {
-  transform: translateY(30px) scale(0.92);
+  transform: translateY(24px) scale(0.92) translateZ(0);
   opacity: 0.55;
   z-index: 1;
+}
+
+.toastWrapper.stacked .toast[data-stack="1"],
+.toastWrapper.stacked .toast[data-stack="2"] {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
 }
 
 /* Hide > 3 toasts */
@@ -227,6 +236,28 @@
   ) {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Animation */
+.toast--enter-top {
+  animation: d9-upToDown 450ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.toast--exit-top {
+  animation: d9-downToUpExit 300ms ease-in;
+}
+
+.toast--enter-bottom {
+  animation: d9-downToUp 450ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.toast--exit-bottom {
+  animation: d9-upToDownExit 300ms ease-in;
+}
+
+.toast--enter-center {
+  animation: d9-centerEnter 450ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.toast--exit-center {
+  animation: d9-centerExit 300ms ease-in;
 }
 
 /* Type colors */
@@ -276,7 +307,7 @@
 .toastHeader .title p {
   font-family: inherit;
   font-size: 1rem;
-  line-height: var(--line-height-base);
+  line-height: 1.25rem;
   text-transform: uppercase;
 }
 .close-button {
@@ -395,22 +426,27 @@
 
 .progress-container {
   position: absolute;
-  bottom: -1px;
+  bottom: 0;
   left: 0;
+  right: 0;
+  height: 4px;
   width: 100%;
-  height: 0.25rem;
-  border-radius: 0 0 0.25rem 0.25rem;
-  background-color: transparent;
+  border-radius: 0 0 8px 8px;
   overflow: hidden;
+  background: transparent;
+  z-index: 10;
+  isolation: isolate;
 }
 
 .toast-progress {
   height: 100%;
   width: 100%;
-  animation-name: shrinkProgress;
+  z-index: 15;
+  animation-name: d9-shrinkProgress;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   will-change: transform;
+  transform-origin: left;
 }
 
 .toast-progress.default {
@@ -433,11 +469,11 @@
   background-color: var(--loading-color);
 }
 
-/* Animate keyframes */
-@keyframes upToDown {
+/* Animation keyframes */
+@keyframes d9-upToDown {
   from {
     opacity: 0;
-    transform: translateY(-28px);
+    transform: translateY(-44px);
   }
   to {
     opacity: 1;
@@ -445,10 +481,10 @@
   }
 }
 
-@keyframes downToUp {
+@keyframes d9-downToUp {
   from {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(44px);
   }
   to {
     opacity: 1;
@@ -456,7 +492,7 @@
   }
 }
 
-@keyframes centerEnter {
+@keyframes d9-centerEnter {
   from {
     opacity: 0;
     transform: scale(0.8);
@@ -468,40 +504,40 @@
 }
 
 /* Exit animate keyframes */
-@keyframes upToDownExit {
+@keyframes d9-upToDownExit {
   from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
   to {
     opacity: 0.85;
-    transform: translateY(28px) scale(0.9);
+    transform: translateY(48px);
   }
 }
 
-@keyframes downToUpExit {
+@keyframes d9-downToUpExit {
   from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
   to {
     opacity: 0.85;
-    transform: translateY(-28px) scale(0.9);
+    transform: translateY(-48px);
   }
 }
 
-@keyframes centerExit {
+@keyframes d9-centerExit {
   from {
     opacity: 1;
     transform: scale(1);
   }
   to {
     opacity: 0.85;
-    transform: scale(0.7);
+    transform: scale(0.95) translateY(-28px);
   }
 }
 
-@keyframes shrinkProgress {
+@keyframes d9-shrinkProgress {
   from {
     transform: scaleX(1);
   }

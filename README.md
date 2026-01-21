@@ -287,3 +287,6 @@ MIT © **Athul / D9 Coder**
 * 💻 Source: [https://github.com/psathul073/d9-toast](https://github.com/psathul073/d9-toast)
 * 📦 npm: [https://www.npmjs.com/package/d9-toast](https://www.npmjs.com/package/d9-toast)
 
+---
+
+> See [CHANGELOG](https://psathul073.github.io/d9-toast-docs/docs/Changelog) for details.
