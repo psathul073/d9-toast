@@ -69,8 +69,8 @@ const Toast = ({
         : EXIT_ANIMATIONS.center;
 
     return {
-      enterAnim: `${baseEnter} 750ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
-      exitAnim: `${baseExit} 750ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
+      enterAnim: `${baseEnter} 450ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
+      exitAnim: `${baseExit}  300ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
     };
   }, [position]);
 
@@ -107,9 +107,8 @@ const Toast = ({
             : `action-btnA__${type}`;
 
       const classNameStr =
-        `action-btn ${theme === "colored" ? theme : btnType} ${
-          a.className || ""
-        }`.trim();
+        `action-btn ${theme === "colored" ? theme : btnType} ${a.className || ""
+          }`.trim();
       return (
         <button
           aria-label={`Action ${a.text}`}
@@ -163,9 +162,8 @@ const Toast = ({
         tabIndex={0}
         aria-hidden={!shouldExpand && stackIndex > 0}
         style={{ animation: exiting ? exitAnim : enterAnim }}
-        className={` d9-toast toast ${
-          theme === "colored" ? type : theme
-        } ${className}`}
+        className={` d9-toast toast ${theme === "colored" ? type : theme
+          } ${className}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -224,6 +222,7 @@ const Toast = ({
             style={{
               opacity: progress ? 1 : 0,
               height: progress ? "4px" : "0px",
+              transition: "opacity 0.2s ease",
             }}
           >
             <div
