@@ -156,7 +156,7 @@ export const ToastProvider = ({ children }) => {
         },
       };
       // Limit to last 10 toasts to prevent memory overflow...
-      setToasts((prev) => [...prev, newToast].slice(-10));
+      setToasts((prev) => [newToast, ...prev].slice(0, 10));
 
       const { audio, type } = newToast;
       const now = Date.now();
