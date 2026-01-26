@@ -130,7 +130,7 @@ export const ToastProvider = ({ children }) => {
       // Reset time to allow rapid replay...
       audio.currentTime = 0;
       audio.volume = volume;
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
     } catch (err) {
       console.error("Audio play error:", err);
     }
@@ -156,7 +156,7 @@ export const ToastProvider = ({ children }) => {
         },
       };
       // Limit to last 10 toasts to prevent memory overflow...
-      setToasts((prev) => [newToast, ...prev].slice(0, 10));
+      setToasts((prev) => [newToast, ...prev].slice(0, 4));
 
       const { audio, type } = newToast;
       const now = Date.now();
@@ -286,7 +286,7 @@ export const ToastProvider = ({ children }) => {
           onMouseLeave={handleMouseLeave}
         >
           <div className="toastContainer">
-            {positionToasts.slice(0, 3).map((toast, index) => (
+            {positionToasts.map((toast, index) => (
               <Toast
                 key={toast.id}
                 {...toast}

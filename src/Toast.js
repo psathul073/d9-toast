@@ -7,17 +7,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { getAnimationDirection, isSwipeAllowed} from "./ToastHelper.js"
 import Icons from "./Icons.js";
-
-// For animation direction.
-const getAnimationDirection = (position) => {
-  if (position.startsWith("top")) return "top";
-  if (position.startsWith("bottom")) return "bottom";
-  if (position === "center") return "center";
-  if (position === "center-top") return "top";
-  if (position === "center-bottom") return "bottom";
-  return "top";
-};
 
 const Toast = ({
   id,
@@ -45,6 +36,10 @@ const Toast = ({
   const [isMounted, setIsMounted] = useState(false);
   const [phase, setPhase] = useState("enter");
   const timeoutRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchDeltaX = useRef(0);
+  const touchDeltaY = useRef(0);
 
   // For SSR Safety Guard.
   useEffect(() => {
@@ -63,7 +58,7 @@ const Toast = ({
   const triggerExit = useCallback(() => {
     if (phase === "exit") return;
     setPhase("exit");
-    timeoutRef.current = setTimeout(() => remove(), 300); // Set and match exit animation duration.
+    timeoutRef.current = setTimeout(() => remove(), 350); // Set and match exit animation duration.
   }, [remove, phase]);
 
   // for pause.
@@ -75,6 +70,31 @@ const Toast = ({
   const handleResume = useCallback(() => {
     if (autoClose) setIsPaused(false);
   }, [autoClose]);
+
+  // Touch handlers...
+  const onTouchStart = useCallback((e) => {
+    const t = e.touches[0];
+    touchStartX.current = t.clientX;
+    touchStartY.current = t.clientY;
+  }, []);
+
+  const onTouchMove = useCallback((e) => {
+    const t = e.touches[0];
+    touchDeltaX.current = t.clientX - touchStartX.current;
+    touchDeltaY.current = t.clientY - touchStartY.current;
+  },[]);
+
+  const onTouchEnd = useCallback(() => {
+    if (!shouldExpand && stackIndex > 0) return;
+
+    if (isSwipeAllowed(position, touchDeltaX.current, touchDeltaY.current)) {
+      triggerExit();
+    }
+
+    touchDeltaX.current = 0;
+    touchDeltaY.current = 0;
+  },[position, shouldExpand, stackIndex, triggerExit]);
+
 
   // Toast actions...
   const actionButtons = useMemo(() => {
@@ -90,8 +110,9 @@ const Toast = ({
             : `action-btnA__${type}`;
 
       const classNameStr =
-        `action-btn ${theme === "colored" ? theme : btnType} ${a.className || ""
-          }`.trim();
+        `action-btn ${theme === "colored" ? theme : btnType} ${
+          a.className || ""
+        }`.trim();
       return (
         <button
           aria-label={`Action ${a.text}`}
@@ -135,10 +156,11 @@ const Toast = ({
 
   return (
     <div
-      className={`toastWrapper ${shouldExpand ? "expanded" : "stacked"}`}
+      className={`toastWrapper ${shouldExpand ? "expanded" : "stacked"} ${animationClass}`}
       dir={rtl ? "rtl" : "ltr"}
       style={{
-        bottom: position.includes("bottom") ? "0%" : "",
+        bottom: position.includes("bottom") && !shouldExpand ? "0%" : "",
+        zIndex: 100 - stackIndex,
         pointerEvents: "none",
       }}
     >
@@ -152,9 +174,12 @@ const Toast = ({
         style={{
           pointerEvents: phase === "exit" ? "none" : "auto",
         }}
-        className={`d9-toast toast ${animationClass} ${theme === "colored" ? type : theme} ${className}`}
+        className={`d9-toast toast ${theme === "colored" ? type : theme} ${className}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
         {/* Header */}
         {title && (
@@ -229,5 +254,6 @@ const Toast = ({
     </div>
   );
 };
+
 
 export default React.memo(Toast);
