@@ -1,12 +1,17 @@
 "use client";
 
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
-import Toast from "./Toast.js";
+import React, { useCallback, useRef, useState, useEffect } from "react";
+import Toast from "./Toast";
+import {
+  PromiseMessages,
+  ToastCallable,
+  ToastOptions,
+  ToastPosition,
+} from "./types";
+
+interface ToastItem extends ToastOptions {
+  id: string;
+}
 
 // Audio.
 const sounds = {
@@ -21,7 +26,7 @@ const sounds = {
   info: "https://cdn.jsdelivr.net/gh/psathul073/d9-toast-assets@main/info.mp3",
 };
 
-const audioCache = {}; // Cache for audio objects..
+const audioCache: Record<string, HTMLAudioElement> = {}; // Cache for audio objects..
 
 const audioSettings = {
   audioFile: sounds.default,
@@ -30,8 +35,19 @@ const audioSettings = {
   cooldown: 500,
 };
 
+interface ToastRef {
+  showToast: (toast: ToastOptions) => string;
+  removeToast: (id: string) => void;
+  removeToastAll: () => void;
+  promiseToast: <T>(
+    promise: Promise<T> | (() => Promise<T>),
+    messages: PromiseMessages<T>,
+    options?: ToastOptions,
+  ) => Promise<T>;
+}
+
 // INTERNAL reference...
-let toastRef = null;
+let toastRef: ToastRef | null = null;
 
 // For public toast API.
 const warn = () => {
@@ -42,11 +58,18 @@ const warn = () => {
 };
 
 /** * CALLABLE API CORE */
-const toastBase = (msg, opts = {}) => {
+const toastBase: ToastCallable = ((msg, opts = {}) => {
   return toastRef
-    ? toastRef.showToast({ type: "default", title: false, progress: false, duration: 3000, message: msg, ...opts })
+    ? toastRef.showToast({
+        type: "default",
+        title: false,
+        progress: false,
+        duration: 3000,
+        message: msg,
+        ...opts,
+      })
     : warn();
-};
+}) as ToastCallable;
 
 toastBase.sounds = sounds;
 
@@ -70,17 +93,26 @@ toastBase.warning = (msg, opts = {}) =>
     ? toastRef.showToast({ type: "warning", message: msg, ...opts })
     : warn();
 
-toastBase.promise = (promise, messages, opts = {}) => {
-  const defaultMessages = {
+toastBase.promise = <T,>(
+  promise: Promise<T> | (() => Promise<T>),
+  messages: PromiseMessages<T>,
+  opts: ToastOptions = {},
+): Promise<T> => {
+  const defaultMessages: PromiseMessages<T> = {
     loading: "Loading...",
     success: "Success",
     error: "Error",
   };
-  const finalMessages =
-    messages && typeof messages === "object" ? messages : defaultMessages;
+
+  const finalMessages = messages ?? defaultMessages;
+
   return toastRef
     ? toastRef.promiseToast(promise, finalMessages, opts)
-    : warn();
+    : Promise.reject(
+        new Error(
+          "D9-Toast: ToastProvider is not mounted. Ensure it wraps your app.",
+        ),
+      );
 };
 
 toastBase.dismiss = (id) => toastRef?.removeToast(id);
@@ -88,12 +120,13 @@ toastBase.dismissAll = () => toastRef?.removeToastAll();
 
 export const toast = toastBase;
 
-
-export const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
-  const [isHovering, setIsHovering] = useState(false);
-  const lastSoundTimeRef = useRef(0);
-  const hoverTimeoutRef = useRef(null);
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [isHovering, setIsHovering] = useState<boolean>(false);
+  const lastSoundTimeRef = useRef<number>(0);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = useCallback(() => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -117,42 +150,46 @@ export const ToastProvider = ({ children }) => {
   }, []);
 
   // Audio player..
-  const playAudio = useCallback(({ audioFile, volume = 0.6 }) => {
-    if (!audioFile || typeof window === "undefined") return;
+  const playAudio = useCallback(
+    ({ audioFile, volume = 0.6 }: { audioFile: string; volume?: number }) => {
+      if (!audioFile || typeof window === "undefined") return;
 
-    try {
-      // Check cache..
-      let audio = audioCache[audioFile];
-      if (!audio) {
-        audio = new Audio(audioFile);
-        audioCache[audioFile] = audio;
+      try {
+        // Check cache..
+        let audio = audioCache[audioFile];
+        if (!audio) {
+          audio = new Audio(audioFile);
+          audio.preload = "auto";
+          audioCache[audioFile] = audio;
+        }
+        // Reset time to allow rapid replay...
+        audio.currentTime = 0;
+        audio.volume = volume;
+        audio.play().catch(() => {});
+      } catch (err) {
+        console.error("Audio play error:", err);
       }
-      // Reset time to allow rapid replay...
-      audio.currentTime = 0;
-      audio.volume = volume;
-      audio.play().catch(() => { });
-    } catch (err) {
-      console.error("Audio play error:", err);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Generate unique ID safely
   const generateId = () =>
     typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
+      ? (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`)
       : Date.now().toString() + Math.random().toString(36);
 
   // Show toast..
   const showToast = useCallback(
-    (toast) => {
-      const newToast = {
+    (toast: ToastOptions): string => {
+      const newToast: ToastItem = {
         id: generateId(),
         ...toast,
         audio: {
-          enabled: toast.audio?.enabled ?? audioSettings.enabled, // Toast-specific audio setting.
-          volume: toast.audio?.volume ?? audioSettings.volume, // Custom volume per toast.
-          audioFile: toast.audio?.audioFile ?? audioSettings.audioFile, // Custom sound per toast.
-          cooldown: toast.audio?.cooldown ?? audioSettings.cooldown, // Custom cooldown im ms.
+          enabled: toast.audio?.enabled ?? audioSettings.enabled,
+          volume: toast.audio?.volume ?? audioSettings.volume,
+          audioFile: toast.audio?.audioFile ?? audioSettings.audioFile,
+          cooldown: toast.audio?.cooldown ?? audioSettings.cooldown,
         },
       };
       // Limit to last 10 toasts to prevent memory overflow...
@@ -160,14 +197,14 @@ export const ToastProvider = ({ children }) => {
 
       const { audio, type } = newToast;
       const now = Date.now();
-      const cooldown = Number(audio.cooldown) || audioSettings.cooldown;
+      const cooldown = Number(audio?.cooldown ?? audioSettings.cooldown);
       const canPlaySound = now - lastSoundTimeRef.current >= cooldown;
       const bypassCooldown = type === "error"; // Bypass error toast
 
       // Play audio whenever a new toast appears.
       if (
-        audio.enabled &&
-        audio.audioFile &&
+        audio?.enabled &&
+        audio?.audioFile &&
         (canPlaySound || bypassCooldown)
       ) {
         lastSoundTimeRef.current = now;
@@ -183,7 +220,7 @@ export const ToastProvider = ({ children }) => {
   );
 
   // Remove toast
-  const removeToast = useCallback((id) => {
+  const removeToast = useCallback((id: string) => {
     setToasts((prev) => {
       const newToasts = prev.filter((t) => t.id !== id);
       return newToasts;
@@ -191,7 +228,7 @@ export const ToastProvider = ({ children }) => {
   }, []);
 
   // Update toast
-  const updateToast = useCallback((id, updates) => {
+  const updateToast = useCallback((id: string, updates: Partial<ToastItem>) => {
     setToasts((prev) =>
       prev.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     );
@@ -199,7 +236,11 @@ export const ToastProvider = ({ children }) => {
 
   // Promise toast..
   const promiseToast = useCallback(
-    (promiseOrFn, messages, options = {}) => {
+    <T,>(
+      promiseOrFn: Promise<T> | (() => Promise<T>),
+      messages: PromiseMessages<T>,
+      options: ToastOptions = {},
+    ): Promise<T> => {
       const id = showToast({
         type: "loading",
         message: messages.loading,
@@ -251,7 +292,9 @@ export const ToastProvider = ({ children }) => {
   }, []);
 
   // Group toasts by there positions..
-  const groupedToasts = toasts.reduce((acc, toast) => {
+  const groupedToasts = toasts.reduce<
+    Partial<Record<ToastPosition, ToastItem[]>>
+  >((acc, toast) => {
     const position = toast.position || "top-right";
     if (!acc[position]) {
       acc[position] = [];

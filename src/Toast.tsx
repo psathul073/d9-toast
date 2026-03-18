@@ -7,10 +7,18 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getAnimationDirection, isSwipeAllowed} from "./ToastHelper.js"
-import Icons from "./Icons.js";
+import { getAnimationDirection, isSwipeAllowed } from "./ToastHelper";
+import Icons from "./Icons";
+import { ToastOptions } from "./types";
 
-const Toast = ({
+interface ToastProp extends ToastOptions {
+  id: string;
+  stackIndex?: number;
+  remove: () => void;
+  isStackHovered: boolean;
+}
+
+const Toast: React.FC<ToastProp> = ({
   id,
   message,
   stackIndex = 0,
@@ -20,22 +28,22 @@ const Toast = ({
   className = "",
   rtl = false,
   expand = "hover",
-  duration = 4000,
+  duration = 3000,
   actions = [],
   remove,
   isStackHovered,
-  progress = true,
+  progress = false,
   autoClose = true,
   closable = false,
-  title = true,
+  title = false,
   pauseOnHover = true,
   pauseOnFocusLoss = true,
 }) => {
   // const [exiting, setExiting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [phase, setPhase] = useState("enter");
-  const timeoutRef = useRef(null);
+  const [phase, setPhase] = useState<"enter" | "exit">("enter");
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const touchDeltaX = useRef(0);
@@ -72,17 +80,17 @@ const Toast = ({
   }, [autoClose]);
 
   // Touch handlers...
-  const onTouchStart = useCallback((e) => {
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
     const t = e.touches[0];
     touchStartX.current = t.clientX;
     touchStartY.current = t.clientY;
   }, []);
 
-  const onTouchMove = useCallback((e) => {
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
     const t = e.touches[0];
     touchDeltaX.current = t.clientX - touchStartX.current;
     touchDeltaY.current = t.clientY - touchStartY.current;
-  },[]);
+  }, []);
 
   const onTouchEnd = useCallback(() => {
     if (!shouldExpand && stackIndex > 0) return;
@@ -93,8 +101,7 @@ const Toast = ({
 
     touchDeltaX.current = 0;
     touchDeltaY.current = 0;
-  },[position, shouldExpand, stackIndex, triggerExit]);
-
+  }, [position, shouldExpand, stackIndex, triggerExit]);
 
   // Toast actions...
   const actionButtons = useMemo(() => {
@@ -254,6 +261,5 @@ const Toast = ({
     </div>
   );
 };
-
 
 export default React.memo(Toast);

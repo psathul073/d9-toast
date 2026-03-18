@@ -1,9 +1,14 @@
 "use client";
 
-import { memo } from "react";
+import { JSX, memo } from "react";
 
-const Icons = ({ name, className = " " }) => {
-  const icons = {
+type IconsProp = {
+  name: string;
+  className?: string;
+};
+
+const Icons = ({ name, className = " " }: IconsProp) => {
+  const icons: Record<string, JSX.Element> = {
     success: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -231,7 +236,7 @@ const Icons = ({ name, className = " " }) => {
       </svg>
     ),
   };
-  
+
   return icons[name] ?? null;
 };
 export default memo(Icons);
