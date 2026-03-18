@@ -537,7 +537,7 @@
   }
   to {
     opacity: 0.85;
-    transform: scale(0.90) translateY(-100%);
+    transform: scale(0.9) translateY(-100%);
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "d9-toast",
-  "version": "2.6.45",
+  "version": "3.6.46",
   "description": "Customizable toast notifications for React",
   "homepage": "https://psathul073.github.io/d9-toast-docs/",
   "repository": {
@@ -15,11 +15,13 @@
     "url": "https://rzp.io/rzp/eVnJ0oP"
   },
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "type": "module",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/d9-toast.d.ts"
+      "types": "./dist/index.d.ts"
     },
     "./toast.css": "./dist/toast.css"
   },
@@ -29,10 +31,9 @@
   "sideEffects": [
     "./dist/toast.css"
   ],
-  "types": "dist/d9-toast.d.ts",
   "scripts": {
-    "build:js": "npx babel src --out-dir dist --copy-files",
-    "build": "npm run build:js"
+    "build": "tsup && npm run copy-css",
+    "copy-css": "cpy src/toast.css dist --flat"
   },
   "peerDependencies": {
     "react": ">=17",
@@ -52,9 +53,10 @@
   "license": "MIT",
   "author": "Athul PS",
   "devDependencies": {
-    "@babel/cli": "^7.28.3",
-    "@babel/core": "^7.28.4",
-    "@babel/preset-env": "^7.28.3",
-    "@babel/preset-react": "^7.27.1"
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "cpy-cli": "^7.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }
