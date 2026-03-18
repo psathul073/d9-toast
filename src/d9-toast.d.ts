@@ -1,8 +1,16 @@
 declare module "d9-toast" {
-  import React from "react";
+  import * as React from "react";
 
-  /** Toast type (icon + header color) */
+  /* =========================================
+   * Core Types
+   * ========================================= */
+
+  /**
+   * Visual type of a toast.
+   * Controls icon, color, and default sound.
+   */
   export type ToastType =
+    | "default"
     | "success"
     | "error"
     | "info"
@@ -10,10 +18,14 @@ declare module "d9-toast" {
     | "loading"
     | "submit";
 
-  /** Theme variants */
+  /**
+   * Visual theme variant for toast appearance.
+   */
   export type ToastTheme = "light" | "dark" | "colored";
 
-  /** Available toast positions */
+  /**
+   * Screen position where the toast appears.
+   */
   export type ToastPosition =
     | "top-right"
     | "top-left"
@@ -23,103 +35,224 @@ declare module "d9-toast" {
     | "center-top"
     | "center-bottom";
 
-  /** Available toast sounds */
-  export interface ToastSounds {
-    default: string;
-    success: string;
-    warning: string;
-    error: string;
-    info: string;
-  }
+  /* =========================================
+   * Actions & Audio
+   * ========================================= */
 
-  /** Single button/action displayed inside a toast */
+  /**
+   * Single button/action displayed inside a toast.
+   * Useful for actions like Undo, Retry, or Confirm.
+   */
   export interface ToastAction {
-    /** Text label for the action button */
+    /**
+     * Text label shown on the action button.
+     */
     text: string;
-    /** Extra custom class names */
+
+    /**
+     * Optional extra class names for custom styling.
+     */
     className?: string;
-    /** Optional callback triggered on click */
-    callback?: (toast: { id: number }) => void;
+
+    /**
+     * Callback triggered when the action button is clicked.
+     * Receives the toast id as argument.
+     */
+    callback?: (toast: { id: string }) => void;
   }
 
-  /** Audio configuration for toast sound */
+  /**
+   * Audio configuration for toast sounds.
+   */
   export interface ToastAudioOptions {
-    /** Enable or disable toast sound */
+    /**
+     * Enable or disable toast sound.
+     */
     enabled?: boolean;
-    /** Audio volume (0 to 1) */
+
+    /**
+     * Audio volume (range: 0–1).
+     */
     volume?: number;
-    /** Custom audio file */
+
+    /**
+     * Custom audio file URL.
+     */
     audioFile?: string;
-    /** Cooldown in milliseconds between sounds */
+
+    /**
+     * Cooldown in milliseconds between sounds.
+     */
     cooldown?: number;
   }
 
-  /** Toast configuration options */
+  /* =========================================
+   * Toast Options
+   * ========================================= */
+
+  /**
+   * Configuration options for a toast notification.
+   */
   export interface ToastOptions {
-    /** Main message; can be string or any React node (you render non-strings as-is) */
-    message: string | React.ReactNode;
-    /** Visual type (color/icon) */
+    /**
+     * Main message content.
+     * Can be a string or a React node.
+     */
+    message?: string | React.ReactNode;
+
+    /**
+     * Visual type of the toast (affects color & icon).
+     */
     type?: ToastType;
-    /** Duration in ms before auto-close (0 = persistent) */
+
+    /**
+     * Duration in milliseconds before auto close.
+     * Use `0` to make the toast persistent.
+     */
     duration?: number;
-    /** Optional buttons shown inside the toast */
-    actions?: ToastAction[];
-    /** Visual theme */
-    theme?: ToastTheme;
-    /** Whether to show toast title */
-    title?: boolean;
-    /** Whether to show progress bar */
-    progress?: boolean;
-    /** Allow manual close via X button */
-    closable?: boolean;
-    /** Pause timer when hovered */
-    pauseOnHover?: boolean;
-    /** Pause timer when window/tab loses focus */
-    pauseOnFocusLoss?: boolean;
-    /** Extra custom class names */
-    className?: string;
-    /** Where to place the toast on screen */
+
+    /**
+     * Screen position where the toast appears.
+     */
     position?: ToastPosition;
-    /** Whether the toast auto-closes after duration */
+
+    /**
+     * Visual theme variant.
+     */
+    theme?: ToastTheme;
+
+    /**
+     * Action buttons shown at the bottom of the toast.
+     */
+    actions?: ToastAction[];
+
+    /**
+     * Extra custom class names.
+     */
+    className?: string;
+
+    /**
+     * Whether to show the toast title/header.
+     */
+    title?: boolean;
+
+    /**
+     * Whether to show the progress bar.
+     */
+    progress?: boolean;
+
+    /**
+     * Allow manual close via close (X) button.
+     */
+    closable?: boolean;
+
+    /**
+     * Whether the toast auto-closes after duration.
+     */
     autoClose?: boolean;
-    /** Audio configuration for this toast */
+
+    /**
+     * Pause the timer when the toast is hovered.
+     */
+    pauseOnHover?: boolean;
+
+    /**
+     * Pause the timer when the window/tab loses focus.
+     */
+    pauseOnFocusLoss?: boolean;
+
+    /**
+     * Enable right-to-left text direction.
+     */
+    rtl?: boolean;
+
+    /**
+      * Controls the stacking behavior. 
+      * 'hover' will show 3 toasts stacked until mouse entry.
+      */
+    expand?: boolean | "hover";
+
+    /**
+     * Audio configuration for this toast.
+     */
     audio?: ToastAudioOptions;
   }
 
-  /** Internal toast data with generated id */
-  export interface ToastData extends ToastOptions {
-    id: number;
+  /* =========================================
+     * Toast API (PUBLIC)
+     * ========================================= */
+
+  export interface ToastCallable {
+    /**
+    * Show a default notification.
+    * Defaults: type="default", progress=false, duration=3000
+    * Usage: toast("Simple message")
+    */
+    (message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Default sound URLs */
+    sounds: {
+      default: string;
+      success: string;
+      warning: string;
+      error: string;
+      info: string;
+    };
+
+    /** Show a success toast */
+    success(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show an error toast */
+    error(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show an info toast */
+    info(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /** Show a warning toast */
+    warning(message: string | React.ReactNode, options?: ToastOptions): string | undefined;
+
+    /**
+     * Wraps a promise and updates the toast automatically.
+     */
+    promise<T>(
+      promise: Promise<T> | (() => Promise<T>),
+      messages: {
+        loading: string | React.ReactNode;
+        success: string | React.ReactNode | ((value: T) => string | React.ReactNode);
+        error: string | React.ReactNode | ((error: any) => string | React.ReactNode);
+      },
+      options?: ToastOptions
+    ): Promise<T>;
+
+    /** Dismiss a specific toast */
+    dismiss(id: string): void;
+
+    /** Dismiss all toasts */
+    dismissAll(): void;
   }
 
-  /** Context value shape */
-  export interface ToastContextValue {
-    /** Default toast sounds */
-    sounds: ToastSounds,
-    /** Show a toast with given options and return toast id */
-    showToast: (toast: ToastOptions) => number;
-    /** Remove a toast by ID */
-    removeToast: (id: number) => void;
-    /** Remove all active toasts */
-    removeToastAll: () => void;
-  }
+  /**
+   * Public toast API used to trigger notifications.
+   * Can be called directly as a function or via type-specific methods.
+   */
+  export const toast: ToastCallable;
+  /* =========================================
+   * Provider
+   * ========================================= */
 
-  /** Toast provider props for context setup */
+  /**
+   * Props for the ToastProvider component.
+   */
   export interface ToastProviderProps {
-    /** App children to wrap with ToastProvider */
+    /**
+     * Application children wrapped by ToastProvider.
+     */
     children: React.ReactNode;
   }
 
-  /** Context provider component */
+  /**
+   * Provider component that enables toast functionality.
+   * Must wrap your application root.
+   */
   export const ToastProvider: React.FC<ToastProviderProps>;
-
-  /** Hook to trigger and manage toasts */
-  export const useToast: () => ToastContextValue;
-
-  /** Export the Toast component props/type for advanced consumers */
-  export interface ToastProps extends ToastData {
-    remove: () => void;
-  }
-
-  /** Toast component */
-  export const Toast: React.FC<ToastProps>;
 }

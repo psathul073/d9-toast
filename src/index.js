@@ -1,2 +1,1 @@
-export { ToastProvider, useToast } from "./ToastContext.js";
-
+export { ToastProvider, toast } from "./ToastContext.js";
