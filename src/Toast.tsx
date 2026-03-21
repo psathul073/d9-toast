@@ -27,7 +27,7 @@ const Toast: React.FC<ToastProp> = ({
   position = "top-right",
   className = "",
   rtl = false,
-  expand = "hover",
+  expand = false,
   duration = 3000,
   actions = [],
   remove,
